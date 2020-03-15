@@ -9,4 +9,8 @@ bode(sys); % change frequency unit to KHz in "View" -> "Property Editor"
 %% Step response of the system
 plot(step(sys));
 
+%% The relative degree of the system
+% relative degree =  6-4 =2
 
+%%
+csys= canon(sys,'companion')
