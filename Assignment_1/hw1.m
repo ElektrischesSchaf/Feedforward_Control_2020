@@ -30,7 +30,7 @@ D_inv=1/(C*A*B);
 % https://electrosome.com/signal-generation-in-matlab/
 n1=0; n2=10;
 t=n1:0.1:n2;
-x1=[t>=0];
+x1=1*[t>=0];
 x2=-2*[t>=1];
 x3=2*[t>=3];
 x4=-1*[t>=4];
