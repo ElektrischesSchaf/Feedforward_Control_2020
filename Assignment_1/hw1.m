@@ -29,8 +29,7 @@ D_inv=1/(C*A*B);
 
 %% U_ff signal generation
 % https://electrosome.com/signal-generation-in-matlab/
-n1=0; n2=10;
-t=n1:0.1:n2;
+t=0:0.1:10;
 x1=1*[t>=0];
 x2=-2*[t>=1];
 x3=2*[t>=3];
@@ -51,6 +50,7 @@ plot(yd);
 y_position=lsim(Original_System_State_Space, yd, t);
 hold on
 plot(y_position);
+y_position=100.*y_position;
 
 %% Differentiate y_position twice into y_acceleration
 for i=1:length(t)-1
@@ -60,6 +60,6 @@ end
 for i=1:length(t)-2
     y_acceleration(i)=y_velocity(i+1)-y_velocity(i);
 end
-clf;
+% clf;
 plot(y_acceleration);
-% legend('yd','voltage input','y_position', 'y_acceleration');
+legend('yd','voltage input','y position', 'y acceleration');
