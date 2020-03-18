@@ -137,8 +137,10 @@ Ki=50;
 Kd=0.5;
 H=[1];
 Controller=pid(Kp,Ki,Kd);
-Origianl_System_minus_five_percent_PID=feedback(Controller*Origianl_System_minus_five_percent, H);
+% Origianl_System_minus_five_percent_PID=U_ff+feedback(Controller*Origianl_System_minus_five_percent, H); % inverse and feedback input
+Origianl_System_minus_five_percent_PID=feedback(Controller*Origianl_System_minus_five_percent, H); % only feedback input
 y_position_minus_5_percent_PID=lsim(Origianl_System_minus_five_percent_PID, U_ff, t);
+
 y_position_minus_5_percent_PID=1e2.*y_position_minus_5_percent_PID;
     %% Differentiate y_position twice into y_acceleration
 for i=1:length(t)-1
