@@ -15,12 +15,13 @@ Origianl_System=tf(numerator, denominator);
 %% The relative degree of the system
 % relative degree =  6-4 =2
 
-%% Original System State Space
+%% Original System State Space 
+% https://en.wikibooks.org/wiki/Control_Systems/Standard_Forms
 Original_System_State_Space= canon(Origianl_System,'companion')
-A=Original_System_State_Space.A;
-B=Original_System_State_Space.B;
-C=Original_System_State_Space.C;
-D=Original_System_State_Space.D;
+A=Original_System_State_Space.A';
+B=Original_System_State_Space.C';
+C=Original_System_State_Space.B';
+D=Original_System_State_Space.D';
 
 %% inverse system State Space
 A_inv=A-((B*C*A*A)/(C*A*B));
@@ -30,23 +31,37 @@ D_inv=1/(C*A*B);
 
 %% U_ff signal generation
 % https://electrosome.com/signal-generation-in-matlab/
-t=0:0.01:10;
+start_time=0;
+delta=0.01;
+end_time=10
+t=start_time:delta:end_time;
 x1=1*[t>=0];
 x2=-2*[t>=1];
 x3=2*[t>=3];
 x4=-1*[t>=4];
 yd=x1+x2+x3+x4;
-% plot(t,input); % stem(n,x);
-% title('Unit Step Signal - Cont');
+figure(1);
+subplot(2,1,1);
+plot(t,yd, 'LineWidth',LineWidth); % stem(n,x);
+xlabel('time(ms)');
+ylabel('V/ms^2');
+title('The desired acceleration profile');
+
 
 %% Inverse System
 Inverse_System_State_Space=ss(A_inv, B_inv, C_inv, D_inv);
+Inverse_System=ss2tf(A_inv, B_inv, C_inv, D_inv);
 %% 
 U_ff=lsim(Inverse_System_State_Space, yd, t);
+subplot(2,1,2)
 plot(U_ff, 'LineWidth', LineWidth);
-hold on
-pl=plot(yd, 'LineWidth', LineWidth*5);
-pl.Color(4)=0.25;
+xlabel('time(ms)');
+xlim([start_time end_time/delta]);
+ylabel('Voltage');
+title('The Inverse System Input');
+
+% pl=plot(yd, 'LineWidth', LineWidth*5);
+% pl.Color(4)=0.25;
 %%
 y_position=lsim(Original_System_State_Space, U_ff, t);
 % plot(y_position);
@@ -60,8 +75,18 @@ end
 for i=1:length(t)-2
     y_acceleration(i)=y_velocity(i+1)-y_velocity(i);
 end
-% clf;
-plot(y_acceleration,'r-' ,'LineWidth', LineWidth);
+
+figure(2);
+plot(yd, 'LineWidth',LineWidth/2); % stem(n,x);
+hold on;
+plot(y_acceleration,'r-' ,'LineWidth', LineWidth/2);
+xlabel('time(ms)');
+xlim([start_time end_time/delta]);
+ylabel('V/ms^2');
+title('y_d and y_acceleration');
+lgd=legend('y_d', 'y_acceleration');
+lgd.FontSize=20;
+
 
 
 %% Numerator  constant 5625 has changed by 5% 
@@ -78,7 +103,9 @@ end
 for i=1:length(t)-2
     y_acceleration_plus_5_percent(i)=y_velocity_plus_5_percent(i+1)-y_velocity_plus_5_percent(i);
 end
+figure(3);
 plot(y_acceleration_plus_5_percent, 'LineWidth', LineWidth);
+hold on;
 
 %% Numerator  constant 5625 has changed by -5% 
 numerator=[11.88 4.977 539.6 129.9 5625*0.95];
@@ -94,19 +121,23 @@ end
 for i=1:length(t)-2
     y_acceleration_minus_5_percent(i)=y_velocity_minus_5_percent(i+1)-y_velocity_minus_5_percent(i);
 end
-plot(y_acceleration_minus_5_percent, 'LineWidth', LineWidth);
 
-% lgd=legend('voltage input (u_f_f)', 'y_d', 'y acceleration', 'y_+_5_%', 'y_-_5_%');
-% lgd.FontSize=20;
-% hold off
+plot(y_acceleration_minus_5_percent, 'LineWidth', LineWidth);
+xlabel('time(ms)');
+xlim([start_time end_time/delta]);
+ylabel('V/ms^2');
+title('+5% and -5% comparison');
+lgd=legend('+5%', '-5%');
+lgd.FontSize=20;
+close all;
 
 %% PID Feedback controller
-Kp=0.75;
-Ki=0.5;
+Kp=30;
+Ki=50;
 Kd=0.5;
 H=[1];
 Controller=pid(Kp,Ki,Kd);
-Origianl_System_minus_five_percent_PID=feedback(Controller*Origianl_System_minus_five_percent,H);
+Origianl_System_minus_five_percent_PID=feedback(Controller*Origianl_System_minus_five_percent, H);
 y_position_minus_5_percent_PID=lsim(Origianl_System_minus_five_percent_PID, U_ff, t);
 y_position_minus_5_percent_PID=1e2.*y_position_minus_5_percent_PID;
     %% Differentiate y_position twice into y_acceleration
@@ -117,7 +148,12 @@ end
 for i=1:length(t)-2
     y_acceleration_minus_5_percent_PID(i)=y_velocity_minus_5_percent_PID(i+1)-y_velocity_minus_5_percent_PID(i);
 end
+
+
+figure(4);
+plot(yd, 'LineWidth',LineWidth/2); % stem(n,x);
+hold on;
 plot(y_acceleration_minus_5_percent_PID, 'LineWidth', LineWidth);
-set(gcf,'Position',[50 50 750 750])
-lgd=legend('voltage input (u_f_f)', 'y_d', 'y acceleration', 'y_+_5_%', 'y_-_5_%', '-5% with PID');
-lgd.FontSize=20;
+lgd=legend('y_d', 'PID feedback response');
+lgd.FontSize=10;
+
