@@ -11,7 +11,7 @@ function xdiff= fun(t, x_n, flag)
 %     time=U(:,1);
 %     uff=U(:,2);
 %     u = interp1(time, uff, t);
-    uff = @(time) 50*cos(time);
+    uff = @(time_handle) 50*cos(time_handle);
     
     xdiff=zeros(3,1);
     xdiff(1)=x_n(2);

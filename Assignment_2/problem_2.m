@@ -28,26 +28,33 @@ Sysf = Sys_f*Sys_f*Sys_f*Sys_f*Sys_f; % fifth order filter
 % xlabel('time(s)'); ylabel('yd (filtered)')
 % axis([0 8 -1 11]);
 
-%% yd_double_dot
+%% y_desired_double_dot
 for i=1:length(y)-1
-    y_velocity(i)=y(i+1)-y(i);
+    y_velocity(i)=yd(i+1)-yd(i);
 end
-
+cc=[0]
+y_velocity=[y_velocity cc];
 for i=1:length(y_velocity)-1
     y_acc(i)=y_velocity(i+1)-y_velocity(i);
 end
+y_acc=[y_acc cc];
 
 % https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
 eta1=0; eta2=0;
 IC=[eta1, eta2];
 time_span=[0 tf];
-[time, eta] = ode45( @(time, eta) func(time, eta, y_acc), time_span, IC);
+options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
+[time, eta] = ode45( @(time, eta) func(time, eta, y_acc), time_span, IC, options);
 
 function eta_dot=func(time, eta, y_acc)
     M=1; m=1; L=1; B=1; g=9.8;
+    
+    ttt= [0: 0.001 : 8];
+    y_desired_dot_dot=interp1( ttt, y_acc, time );
+    
     eta_dot=zeros(2,1);
     
     eta_dot(1)=eta(2);
-    eta_dot(2)=( -1/(m*L*L) )*(m*g*sin(eta(1))+B*eta(2)) + ((-1/m*L*L))*(m*L*cos(eta(1)))*y_acc(time);
+    eta_dot(2)=( -1/(m*L*L) )*(m*g*sin(eta(1))+B*eta(2)) + ((-1/m*L*L))*(m*L*cos(eta(1)))*y_desired_dot_dot;
 end
 
