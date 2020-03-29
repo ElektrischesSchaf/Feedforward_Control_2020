@@ -1,6 +1,6 @@
 clear all; close all;
 
-% defining the desired output (and filtering it twice)
+%% defining the desired output (and filtering it twice)
 tin = 1; tup =3;  tf = 8; delt = 0.001; ymax = 10;
 
 ramp = ymax/(tup-tin);
@@ -12,7 +12,7 @@ y1 = ramp*(t2-max(t1));
 y2 = max(y1)*ones(size(t3));
 t = 0:delt:tf; y = [y0 y1 y2];
 
-% filtering the desired signal 
+%% filtering the desired signal 
 Wf = 1; % choose a filter break frequency in Hz
 num = [Wf*2*pi]; den = [1 (Wf*2*pi)]; % first order filter
 [Af,Bf,Cf,Df] = tf2ss(num,den);
@@ -26,4 +26,12 @@ xlabel('time(s)'); ylabel('y (unfiltered)')
 subplot(212), plot(t,yd); 
 xlabel('time(s)'); ylabel('yd (filtered)')
 axis([0 8 -1 11]);
+
+
+
+function dy=findy(time,y);
+dy=zeros(2,1);
+dy(1)=y(2);
+dy(2)=
+end
 
