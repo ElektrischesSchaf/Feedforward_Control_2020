@@ -37,6 +37,7 @@ for i=1:length(y_velocity)-1
     y_acc(i)=y_velocity(i+1)-y_velocity(i);
 end
 
+% https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
 eta1=0; eta2=0;
 IC=[eta1, eta2];
 time_span=[0 tf];
