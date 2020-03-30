@@ -74,7 +74,7 @@ X_ref=inv(T)*Z_ref;
 U_inv=( 1/ (C*A^(r-1)*B) )* ( y_r' -C*A^(r)* X_ref);
 
 figure(2)
-U_ff=U_inv(1,:) % TODO
+U_ff=U_inv(1,:); % TODO
 subplot(211); plot(U_ff);
 title('U_f_f');
 y_angle=lsim(original_system_state_space, U_ff, t);
