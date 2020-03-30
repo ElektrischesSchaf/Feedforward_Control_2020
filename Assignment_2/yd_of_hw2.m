@@ -28,10 +28,3 @@ xlabel('time(s)'); ylabel('yd (filtered)')
 axis([0 8 -1 11]);
 
 
-
-% function dy=findy(time,y);
-% dy=zeros(2,1);
-% dy(1)=y(2);
-% dy(2)=
-% end
-

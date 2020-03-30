@@ -25,9 +25,9 @@ B_inv_red=[(Tb*B) / (C*A^(r-1)*B) ];
 
 
 %% 
-%{
+
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6]);
-[t, eta]=ode45(@(t, eta) func(t,eta) , [0 10], [0 0], options);
+[t, eta]=ode45(@(t, eta) func(t,eta) , [0 10], [0], options);
 
 function eta_dot= func( t, eta, flag)
 
@@ -51,8 +51,10 @@ function eta_dot= func( t, eta, flag)
     A_inv_red=[ Tb*A*T_invL - ( (Tb*B*C*A^r*T_invR)/ (C*A^(r-1)*B) )];
     B_inv_red=[(Tb*B) / (C*A^(r-1)*B) ];
 
-    Y_d=zeros(2,1);
-    
+    Y_d=zeros(3,1);
+    Y_d(3)=eta;
+    Y_d(1)=
+    Y_d(2)=
     eta_dot=A_inv_red*eta+B_inv_red*Y_d;
 end
-%}
+
