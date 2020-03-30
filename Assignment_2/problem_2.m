@@ -46,6 +46,15 @@ time_span=[0 tf];
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
 [time, eta] = ode45( @(time, eta) func(time, eta, y_acc), time_span, IC, options);
 
+M=1; m=1; L=1; B=1; g=9.8;
+ttt= [0: 0.001 : 8];
+y_desired_dot_dot=interp1( ttt, y_acc, time );
+U_inv=-m*L*sin(eta(:,1)).*eta(:,2).^2+(M+m).*y_desired_dot_dot+m*L.*cos(eta(:,1)).*((-1/m*L^2)*(m*g*L.*sin(eta(:,1))+B.*eta(:,2)+m*L.*cos(eta(:,1)).*y_desired_dot_dot ));
+
+
+% yee=0:0.2:8;
+% U_inv=interp1(yee, U_inv, time_span);
+plot(U_inv);
 function eta_dot=func(time, eta, y_acc)
     M=1; m=1; L=1; B=1; g=9.8;
     
@@ -57,4 +66,3 @@ function eta_dot=func(time, eta, y_acc)
     eta_dot(1)=eta(2);
     eta_dot(2)=( -1/(m*L*L) )*(m*g*sin(eta(1))+B*eta(2)) + ((-1/m*L*L))*(m*L*cos(eta(1)))*y_desired_dot_dot;
 end
-

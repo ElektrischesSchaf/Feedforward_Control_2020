@@ -25,7 +25,7 @@ clc; clear;
 
 %% 
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6]);
-[t, state]=ode45(@func, [0 10], [0 0], options);
+[t, eta]=ode45(@(t, eta) func(t,eta) , [0 10], [0 0], options);
 
 function eta_dot= func( t, eta, flag)
 
