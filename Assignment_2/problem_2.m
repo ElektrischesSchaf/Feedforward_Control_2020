@@ -20,13 +20,13 @@ num = [Wf*2*pi]; den = [1 (Wf*2*pi)]; % first order filter
 Sys_f = ss(Af,Bf,Cf,Df); % first order filter system
 Sysf = Sys_f*Sys_f*Sys_f*Sys_f*Sys_f; % fifth order filter
 [yd,xtemp]= lsim(Sysf,y,t); % filter the desired signal
-% figure(1);
-% subplot(211), plot(t,y); 
-% axis([0 8 -1 11]);
-% xlabel('time(s)'); ylabel('y (unfiltered)')
-% subplot(212), plot(t,yd); 
-% xlabel('time(s)'); ylabel('yd (filtered)')
-% axis([0 8 -1 11]);
+figure(1);
+subplot(211), plot(t,y); 
+axis([0 8 -1 11]);
+xlabel('time(s)'); ylabel('y (unfiltered)')
+subplot(212), plot(t,yd); 
+xlabel('time(s)'); ylabel('yd (filtered)')
+axis([0 8 -1 11]);
 
 %% y_desired_double_dot
 for i=1:length(y)-1
@@ -54,9 +54,10 @@ U_inv=-m*L*sin(eta(:,1)).*eta(:,2).^2+(M+m).*y_desired_dot_dot+m*L.*cos(eta(:,1)
 
 % yee=0:0.2:8;
 % U_inv=interp1(yee, U_inv, time_span);
+figure(2);
 plot(U_inv);
 function eta_dot=func(time, eta, y_acc)
-    M=1; m=1; L=1; B=1; g=9.8;
+    M=1; m=1; L=1; B=1; g=1;
     
     ttt= [0: 0.001 : 8];
     y_desired_dot_dot=interp1( ttt, y_acc, time );
