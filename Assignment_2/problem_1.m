@@ -13,24 +13,9 @@ C=[1, 0, 0];
 D=0;
 %% origianl system transfer function
 [numerator denominator]=ss2tf(A,B,C,D);
-
-origianl_system_transfer_function=tf(numerator, denominator); % got relative degree=3
-Original_System_State_Space=ss(A, B, C, D);
-% Original_System_State_Space = canon(origianl_system_transfer_function,'companion')
-
-A_o=Original_System_State_Space.A';
-B_o=Original_System_State_Space.C';
-C_o=Original_System_State_Space.B';
-D_o=Original_System_State_Space.D';
-origianl_system_transfer_function_2=ss2tf(A_o, B_o, C_o, D_o);
-
-%% inverser system state space
 r=3;
-A_inv=A_o-((B_o*C_o*A_o^(r))/(C_o*A_o^(r-1)*B_o));
-B_inv=(B_o)/(C_o*A_o^(r-1)*B_o);
-C_inv=-(C_o*A_o*A_o)/(C_o*A_o^(r-1)*B_o);
-D_inv=1/(C_o*A_o^(r-1)*B_o);
-
+origianl_system_transfer_function=tf(numerator, denominator); % got relative degree=3
+original_system_state_space=ss(A, B, C, D);
 
 %% yd
 % defining the desired output (and filtering it twice)
@@ -63,18 +48,34 @@ title('Desired Input yd');
 xlabel('time(s)'); ylabel('yd (filtered)')
 axis([0 8 -1 11]);
 
+%% y_desired_double_dot
+cc=[0]
+for i=1:length(y)-1
+    y_velocity(i)=yd(i+1)-yd(i);
+end
 
-%% calculate inveres response
-inverse_system_state_space=ss(A_inv, B_inv, C_inv, D_inv);
-inverse_system_transfer_function=ss2tf(A_inv, B_inv, C_inv, D_inv);
+y_velocity=[y_velocity cc];
+for i=1:length(y_velocity)-1
+    y_acc(i)=y_velocity(i+1)-y_velocity(i);
+end
+y_acc=[y_acc cc];
 
-U_ff=lsim(inverse_system_state_space, y, t);
+for i=1:length(y_acc)-1
+    y_r(i)=y_acc(i+1)-y_acc(i);
+end
+y_r=[y_acc cc];
 
-my_y=lsim(Original_System_State_Space, U_ff, t);
-figure(2);
+T=[ C ; C*A; C*A^(r-1) ];
 
-subplot(211); plot(my_y);
-title('My y');
+Z_ref=[y ; y_velocity ; y_acc];
 
-subplot(212); plot(U_ff);
+X_ref=inv(T)*Z_ref;
+
+U_inv=( 1/ (C*A^(r-1)*B) )* ( y_r' -C*A^(r)* X_ref);
+
+figure(2)
+U_ff=U_inv(1,:) % TODO
+subplot(211); plot(U_ff);
 title('U_f_f');
+y_angle=lsim(original_system_state_space, U_ff, t);
+subplot(212); plot(y_angle);
