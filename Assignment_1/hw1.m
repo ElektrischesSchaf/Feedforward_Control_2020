@@ -52,7 +52,7 @@ title('The desired acceleration profile');
 Inverse_System_State_Space=ss(A_inv, B_inv, C_inv, D_inv);
 Inverse_System=ss2tf(A_inv, B_inv, C_inv, D_inv);
 %% 
-U_ff=lsim(Inverse_System_State_Space, yd, t);
+[U_ff, t_inverse_system, X_ref]=lsim(Inverse_System_State_Space, yd, t);
 subplot(2,1,2)
 plot(U_ff, 'LineWidth', LineWidth);
 xlabel('time(ms)');
@@ -129,6 +129,7 @@ ylabel('V/ms^2');
 title('+5% and -5% comparison');
 lgd=legend('+5%', '-5%');
 lgd.FontSize=20;
+
 close all;
 
 %% PID Feedback controller
@@ -159,3 +160,29 @@ plot(y_acceleration_minus_5_percent_PID, 'LineWidth', LineWidth);
 lgd=legend('y_d', 'PID feedback response');
 lgd.FontSize=10;
 
+%% Close loop
+K=0.0;
+A_cl=(A-B*K);
+B_cl=B;
+C_cl=C;
+D_cl=D;
+
+input_close_loop=U_ff+K*X_ref;
+
+system_close_loop=ss( A_cl, B_cl, C_cl, D_cl );
+y_close_loop_position=lsim(system_close_loop, input_close_loop(:,1), t);
+
+
+
+for i=1:length(t)-1
+    y_close_loop_velocity(i)=y_close_loop_position(i+1)-y_close_loop_position(i);
+end
+
+for i=1:length(t)-2
+    y_close_loop_acceleration(i)=y_close_loop_velocity(i+1)-y_close_loop_velocity(i);
+end
+
+figure(5);
+plot(y_close_loop_acceleration, 'LineWidth', LineWidth);
+lgd=legend('ff and fd control response');
+lgd.FontSize=10;

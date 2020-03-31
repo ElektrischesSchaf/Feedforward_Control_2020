@@ -75,7 +75,23 @@ U_inv=( 1/ (C*A^(r-1)*B) )* ( y_r' -C*A^(r)* X_ref);
 
 figure(2)
 U_ff=U_inv(1,:); % TODO
-subplot(211); plot(U_ff);
+subplot(311); plot(U_ff);
 title('U_f_f');
-y_angle=lsim(original_system_state_space, U_ff, t);
-subplot(212); plot(y_angle);
+y_angle=lsim(origianl_system_transfer_function, U_ff, t);
+subplot(312); plot(y_angle);
+title('Origianl system output after applied U_f_f');
+
+%% close loop control
+K=5;
+A_cl=(A-B*K);
+B_cl=B;
+C_cl=C;
+D_cl=D;
+input_close_loop=U_ff + K*X_ref;
+system_close_loop=ss(A_cl, B_cl, C_cl, D_cl);
+input_close_loop=input_close_loop';
+t=t';
+X_ref_transpose=X_ref';
+y_close_loop=lsim(system_close_loop, input_close_loop(:,1), t); % input_close_loop(:,1): the first column of close loop input
+subplot(313); plot(y_close_loop);
+title('CL outpout');
