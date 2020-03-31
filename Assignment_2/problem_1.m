@@ -93,5 +93,17 @@ input_close_loop=input_close_loop';
 t=t';
 X_ref_transpose=X_ref';
 y_close_loop=lsim(system_close_loop, input_close_loop(:,1), t); % input_close_loop(:,1): the first column of close loop input
+
+
 subplot(313); plot(y_close_loop);
+title('CL outpout');
+
+
+figure(3);
+subplot(211), plot(t,y); 
+title('Desired Input y');
+axis([0 8 -1 11]);
+
+xlabel('time(s)'); ylabel('y (unfiltered)')
+subplot(212); plot(y_close_loop);
 title('CL outpout');

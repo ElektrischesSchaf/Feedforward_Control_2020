@@ -1,6 +1,6 @@
 clc; clear;
 r=2;
-
+M=1; m=1; L=1; B=1; g=1;
 %% defining the desired output (and filtering it twice)
 tin = 1; tup =3;  tf = 8; delt = 0.001; ymax = 10;
 
@@ -47,7 +47,7 @@ IC=[eta1, eta2];
 time_span=t;
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
 options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
-[time, eta] = ode45( @(time, eta) func(time, eta, y_acc), time_span, IC, options);
+[time, eta] = ode45( @(time, eta) func(time, eta, y_acc, M, m, L, B, g), time_span, IC, options);
 
 M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : 8];
@@ -59,16 +59,17 @@ U_inv=-m*L*sin(eta(:,1)).*eta(:,2).^2+(M+m).*y_desired_dot_dot+m*L.*cos(eta(:,1)
 % U_inv=interp1( 1:41, U_inv, 0:delt:8);
 figure(2);
 plot(U_inv);
+title('U_f_f');
 U=[U_inv ,  t'];
 
 figure(3);
-[t, x_n]=ode45(@(t, x_n) cart(t, x_n, U), time_span, [0 0 0 0], options2);
+[t, x_n]=ode45(@(t, x_n) cart(t, x_n, U, M, m, L, M, g), time_span, [0 0 0 0], options2);
 plot(x_n(:,1));
+title('Origianl system output after applied U_f_f');
 
 
 
-function eta_dot=func(time, eta, y_acc)
-    M=1; m=1; L=1; B=1; g=1;
+function eta_dot=func(time, eta, y_acc, M, m, L, B, g)
     
     ttt= [0: 0.001 : 8];
     y_desired_dot_dot=interp1( ttt, y_acc, time );
@@ -81,10 +82,7 @@ end
 
 
 
-function x_diff = cart(t, x_n , U)
-
-    
-    M=1; m=1; L=1; B=1; g=9.8;
+function x_diff = cart(t, x_n , U, M, m, L, B, g)
     
     F=U(:,1);
     time=U(:,2);    
