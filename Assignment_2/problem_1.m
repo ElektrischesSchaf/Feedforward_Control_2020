@@ -82,7 +82,13 @@ subplot(312); plot(y_angle);
 title('Origianl system output after applied U_f_f');
 
 %% close loop control
-K=5;
+% K=5; % A simple K controller
+
+% Design a feedback controller that places the poles of the linearized
+% system at -1, -2, -3
+p=[-1,-2,-3];
+K=place(A,B,p);
+
 A_cl=(A-B*K);
 B_cl=B;
 C_cl=C;
