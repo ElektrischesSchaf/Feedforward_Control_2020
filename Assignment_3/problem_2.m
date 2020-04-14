@@ -69,6 +69,8 @@ title('Origianl system output after applied U_f_f');
 
 %% close loop control 
 % TODO find A, B, C, D
+% https://www.mathworks.com/help/control/getstart/pole-placement.html
+% https://www.mathworks.com/help/control/ref/place.html
 p=[-1, -2, -3, -4];
 K=place(A, B, p);
 A_cl=(A-B*K);
