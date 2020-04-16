@@ -71,13 +71,22 @@ title('Origianl system output after applied U_f_f');
 % TODO find A, B, C, D
 % https://www.mathworks.com/help/control/getstart/pole-placement.html
 % https://www.mathworks.com/help/control/ref/place.html
+new_A=[0,0,0,0;
+    0 0 0 m*L*B;
+    0 0 0 0;
+    0 0 0 (M+m)*-B]./(m*M*L);
+
+new_B=[0 ; m*L*L ; 0 ; -m*L];
+new_C=[0 0 1 0];
+new_D=0;
 p=[-1, -2, -3, -4];
-K=place(A, B, p);
-A_cl=(A-B*K);
-B_cl=B;
-C_cl=C;
-D_cl=D;
-input_close_loop=U_ff + K*X_ref;
+K=1;
+% K=place(new_A, new_B, p);
+A_cl=(new_A-new_B*K);
+B_cl=new_B;
+C_cl=new_C;
+D_cl=new_D;
+input_close_loop=U_inv + K*X_ref;
 system_close_loop=ss(A_cl, B_cl, C_cl, D_cl);
 input_close_loop=input_close_loop';
 t=t';
@@ -96,7 +105,6 @@ function eta_dot=func(time, eta, y_acc, M, m, L, B, g)
     eta_dot(1)=eta(2);
     eta_dot(2)=( -1/(m*L*L) )*(m*g*sin(eta(1))+B*eta(2)) + ((-1/m*L*L))*(m*L*cos(eta(1)))*y_desired_dot_dot;
 end
-
 
 
 function x_diff = cart(t, x_n , U, M, m, L, B, g)

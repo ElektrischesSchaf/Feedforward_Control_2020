@@ -28,6 +28,8 @@ figure(1)
 hold on
 plot(t, yd,'-')
 plot(t, yv, '*')
+title('Desired displacement and velocity profile');
+
 
 %% inverse system State Space
 A_inv=A-((B*C*A*A)/(C*A*B));
@@ -40,22 +42,37 @@ Inverse_System_State_Space=ss(A_inv, B_inv, C_inv, D_inv);
 Inverse_System=ss2tf(A_inv, B_inv, C_inv, D_inv);
 
 %% 
-[U_ff, t_inverse_system, X_ref]=lsim(Inverse_System_State_Space, yd, t);
+t=0:0.01:10;
+y_desired=[1*ones(1,100) -1*ones(1,200) 1*ones(1,100) 0*ones(1,601)];
+[U_ff, t_inverse_system, X_ref]=lsim(Inverse_System_State_Space, y_desired, t);
 
 figure(2);
 plot(U_ff, 'LineWidth', LineWidth);
 xlabel('time(ms)');
 ylabel('Voltage');
 title('The Inverse System Input');
-hold on;
+figure(3)
 y_result=lsim(Original_System_State_Space, U_ff, t);
 plot(y_result, 'LineWidth', LineWidth);
+title('The y response of the original system +5%');
 xlabel('time(ms)');
-ylabel('Voltage');
+ylabel('y (m)');
 
+%% PID Feedback controller
+Kp=3;
+Ki=5;
+Kd=0.5;
+H=[1];
+Controller=pid(Kp,Ki,Kd);
+% Origianl_System_minus_five_percent_PID=U_ff+feedback(Controller*Origianl_System_minus_five_percent, H); % inverse and feedback input
+PID=feedback(Controller*Origianl_System, H); % only feedback input
+feedback_y=lsim(PID, U_ff, t);
+figure(4);
+plot(feedback_y, 'LineWidth', LineWidth);
+title('Feedback control loop response');
 
 %% Close loop
-K=0.1;
+K=0.01;
 A_cl=(A-B*K);
 B_cl=B;
 C_cl=C;
@@ -68,7 +85,7 @@ y_close_loop_position=lsim(system_close_loop, input_close_loop(:,1), t);
 
 figure(5);
 plot(y_close_loop_position, 'LineWidth', LineWidth);
-
+title('Feedforward + feedback control loop response');
 
 
 %%  findy
