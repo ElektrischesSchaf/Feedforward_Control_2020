@@ -130,7 +130,7 @@ title('+5% and -5% comparison');
 lgd=legend('+5%', '-5%');
 lgd.FontSize=20;
 
-close all;
+% close all;
 
 %% PID Feedback controller
 Kp=30;
@@ -161,7 +161,7 @@ lgd=legend('y_d', 'PID feedback response');
 lgd.FontSize=10;
 
 %% Close loop
-K=0.0;
+K=0.001;
 A_cl=(A-B*K);
 B_cl=B;
 C_cl=C;
