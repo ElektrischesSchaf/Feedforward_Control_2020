@@ -6,7 +6,7 @@ IC=[x0, theta0, v0, omega0];
 % Time Span
 t0=0; tf=30; tspan=[t0, tf];
 
-[time, state_values]=ode45(@g, tspan, IC);
+[time, state_values]=ode45(@diff_function, tspan, IC);
 x=state_values(:,1);
 theta=state_values(:,2);
 v=state_values(:,3);
@@ -21,7 +21,7 @@ plot(time,theta), xlabel('time (s)'), ylabel('angular displacement (rad)');
 title('\theta angular displacement vs Time');
 end
 
-function  sdot=g(t,s)
+function  sdot=diff_function(t,s)
 g=9.8;
 c=5;
 k=100;
@@ -31,7 +31,10 @@ m2=200;
 
 f=@(time) 50*cos(time);
 
-M=[(m1+m2), m2*L ; m2*L, m2*L*L];
+M=[
+   (m1+m2), m2*L ; 
+    m2*L, m2*L*L;
+   ]
 
 C=[c, 0 ; 0, 0];
 K=[k, 0 ; 0, m2*g*L];
@@ -42,9 +45,11 @@ I=eye(2,2);
 A=[ZERO, I; -inv(M)*K, -inv(M)*C];
 B=[ZERO; inv(M)];
 F=[f(t);0];
-Svec=[s(1) ;  s(2) ; s(3) ; s(4)];
 
-sdot=A*Svec+B*F;
+% Svec=[s(1) ;  s(2) ; s(3) ; s(4)];
+% sdot=A*Svec+B*F;
+
+sdot=A*s+B*F;
 
 end
 
