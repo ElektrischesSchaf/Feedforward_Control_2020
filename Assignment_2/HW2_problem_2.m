@@ -81,7 +81,7 @@ function eta_dot=func(time, eta, y_acc, M, m, L, B, g)
 end
 
 
-
+% x_n(1)= Xc, x_n(2)= Xc_dot, x_n(3)= theta, x_n(4)= theta_dot
 function x_diff = cart(t, x_n , U, M, m, L, B, g)
     
     F=U(:,1);

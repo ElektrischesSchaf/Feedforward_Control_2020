@@ -81,6 +81,8 @@ new_C=[0 0 1 0];
 new_D=0;
 p=[-1, -2, -3, -4];
 K=1;
+% relateive degree r=2
+T=[new_C; new_C*new_A];
 % K=place(new_A, new_B, p);
 A_cl=(new_A-new_B*K);
 B_cl=new_B;
@@ -106,9 +108,9 @@ function eta_dot=func(time, eta, y_acc, M, m, L, B, g)
     eta_dot(2)=( -1/(m*L*L) )*(m*g*sin(eta(1))+B*eta(2)) + ((-1/m*L*L))*(m*L*cos(eta(1)))*y_desired_dot_dot;
 end
 
-
+% x_n(1)= Xc, x_n(2)= Xc_dot, x_n(3)= theta, x_n(4)= theta_dot
 function x_diff = cart(t, x_n , U, M, m, L, B, g)
-    
+ 
     F=U(:,1);
     time=U(:,2);    
     u = interp1(time, F, t);
