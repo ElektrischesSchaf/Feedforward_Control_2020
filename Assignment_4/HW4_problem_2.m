@@ -37,7 +37,7 @@ y_velocity=[y_velocity cc];
 for i=1:length(y_velocity)-1
     y_acc(i)=y_velocity(i+1)-y_velocity(i);
 end
-y_acc=[y_acc cc];
+y_acc=[y_acc, cc];
 
 %% Calculate inveres response
 % https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
@@ -49,10 +49,11 @@ options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]);
 options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
 [time, eta] = ode45( @(time, eta) func(time, eta, y_acc, M, m, L, B, g), time_span, IC, options);
 
-M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : 8];
 y_desired_dot_dot=interp1( ttt, y_acc, time );
 U_inv=-m*L*sin(eta(:,1)).*eta(:,2).^2+(M+m).*y_desired_dot_dot+m*L.*cos(eta(:,1)).*((-1/m*L^2)*(m*g*L.*sin(eta(:,1))+B.*eta(:,2)+m*L.*cos(eta(:,1)).*y_desired_dot_dot ));
+U_inv=U_inv.*1e6; % don't know why
+X_ref=[yd'; y_velocity; eta(:,1)'; eta(:,2)'];
 
 % yee=0:0.2:8;
 % U_inv=interp1( 1:41, U_inv, 0:delt:8);
@@ -67,33 +68,36 @@ plot(x_n(:,1));
 title('Origianl system output after applied U_f_f');
 
 %% close loop control 
+
 % TODO find A, B, C, D
 % https://www.mathworks.com/help/control/getstart/pole-placement.html
 % https://www.mathworks.com/help/control/ref/place.html
 new_A=[0,0,0,0;
     0 0 0 m*L*B;
     0 0 0 0;
-    0 0 0 (M+m)*-B]./(m*M*L);
+    0 0 0 -(M+m)*B]./(m*M*L);
 
 new_B=[0 ; m*L*L ; 0 ; -m*L];
-new_C=[0 0 1 0];
+new_C=[1 0 0 0];
 new_D=0;
-p=[-1, -2, -3, -4];
+% p=[-1, -2, -3, -4];
 K=1;
 % relateive degree r=2
-T=[new_C; new_C*new_A];
+% T=[new_C; new_C*new_A];
 % K=place(new_A, new_B, p);
 A_cl=(new_A-new_B*K);
 B_cl=new_B;
 C_cl=new_C;
 D_cl=new_D;
-input_close_loop=U_inv + K*X_ref;
+input_ff_and_fd=U_inv + K*X_ref(1,:)';
 system_close_loop=ss(A_cl, B_cl, C_cl, D_cl);
-input_close_loop=input_close_loop';
-t=t';
 X_ref_transpose=X_ref';
-y_close_loop=lsim(system_close_loop, input_close_loop(:,1), t); % input_close_loop(:,1): the first column of close loop input
-
+y_close_loop=lsim(system_close_loop, input_ff_and_fd, t); % input_close_loop(:,1): the first column of close loop input
+figure(4)
+plot(input_ff_and_fd);
+title('U_f_f plus U_f_d');
+figure(5)
+plot(y_close_loop);
 
 function eta_dot=func(time, eta, y_acc, M, m, L, B, g)
     
