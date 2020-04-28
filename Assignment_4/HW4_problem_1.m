@@ -50,7 +50,7 @@ for i=1:length(yv)-1
     ya(i)=yv(i+1)-yv(i);
 end
 ya=[ya cc];
-Y_d=[yd; yv; ya];
+Y_d=[yd; yv; ya]; % yd, yd_dot, yd_dot_dot
 time_span=t;
 IC=[0, 0, 0, 0];
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); % don't forget this !!
@@ -62,6 +62,37 @@ U_inv_reduce_order=(1/(C*A^(r-1)*B))*(ya-C*A^(r)*X_ref);
 figure(2);
 plot(U_inv_reduce_order, 'LineWidth', LineWidth);
 title('U_i_n_v by reduce order');
+
+y_result=lsim(Original_System_State_Space, U_inv_reduce_order, t);
+figure(3);
+plot(y_result, 'LineWidth', LineWidth);
+title('y result by reduce order');
+
+for i=1:length(y_result)-1
+    y_result_dot(i)=y_result(i+1)-y_result(i);
+end
+y_result_dot=[y_result_dot cc];
+
+for i=1:length(y_result_dot)-1
+    y_result_dot_dot(i)=y_result_dot(i+1)-y_result_dot(i);
+end
+y_result_dot_dot=[y_result_dot_dot cc];
+
+for i=1:length(y_result)
+      error_1(i)=y_result(i)-yd(i);
+      error_2(i)=y_result_dot(i)-yv(i);
+end
+
+error=[error_1; error_2];
+
+v=-[2 3];
+for i = 1:length(U_inv_reduce_order)
+    u_online(i)=U_inv_reduce_order(i) + inv(C*A^(r-1)*B)*v*error(:,i);
+end
+
+figure(4);
+plot(u_online, 'LineWidth', LineWidth);
+title('U_o_n_l_i_n_e');
 
 %%  findy
 function dy=findy(time,y)
