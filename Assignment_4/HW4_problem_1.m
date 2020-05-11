@@ -66,7 +66,7 @@ title('U_i_n_v by reduce order');
 y_result=lsim(Original_System_State_Space, U_inv_reduce_order, t);
 figure(3);
 plot(y_result, 'LineWidth', LineWidth);
-title('y result by reduce order');
+title('Original system response by reduce order');
 
 for i=1:length(y_result)-1
     y_result_dot(i)=y_result(i+1)-y_result(i);
@@ -85,14 +85,20 @@ end
 
 error=[error_1; error_2];
 
-v=-[2 3];
+% v=-[2 3];
+v=-[10 11];
 for i = 1:length(U_inv_reduce_order)
     u_online(i)=U_inv_reduce_order(i) + inv(C*A^(r-1)*B)*v*error(:,i);
 end
 
 figure(4);
 plot(u_online, 'LineWidth', LineWidth);
-title('U_o_n_l_i_n_e');
+title('U_f_f by online method');
+
+y_result=lsim(Original_System_State_Space, u_online, t);
+figure(5);
+plot(y_result, 'LineWidth', LineWidth);
+title('System response y by online method input U_f_f');
 
 %%  findy
 function dy=findy(time,y)

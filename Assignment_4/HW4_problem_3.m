@@ -72,3 +72,10 @@ Silver_Inverse=ss(A_inv,B_inv,C_inv,D_inv);
 U_ff=lsim(Silver_Inverse, Y_d, t);
 figure(2);
 plot(U_ff);
+title('U_f_f by Silver method');
+
+Original_System=ss(A,B,C,D)
+y=lsim(Original_System, U_ff, t);
+figure(3);
+plot(y);
+title('y by Silver method');
