@@ -9,6 +9,7 @@ B = [0;0;inv(M)*Bh];
 C = [0 1 0 0 ]; D = [0];
 [num,den] = ss2tf(A,B,C,D);
 Sys = ss(A,B,C,D);
+fprintf("tzeros(Sys)");
 tzero(Sys) % finding the zeros of the system
 
 %% internal dynamics
@@ -18,6 +19,8 @@ Ahat = (T*A*Tin) -((T*B*C*A*A*Tin)/(C*A*B));
 Bhat = T*B/(C*A*B);  % nominal system with inverse input
 Aint = Ahat(3:4,3:4); % internal dynamics 
 Bint = [Ahat(3:4,1:2) Bhat(3:4)];
+
+fprintf("eig(Aint)");
 eig(Aint);
 
 %% the decoupled internal dynamics
@@ -32,7 +35,7 @@ Au = Adiag(1,1); Bu = Bdiag(1,:); %   unstable component of internal dynamics
 [As_mdc, Au_mdc, Anh_mdc, A_dec_mdc, T_mdc]=mdc(Aint, 'd');
 T_mdc_inv=inv(T_mdc);
 Bdiag_mdc=T_mdc*Bint;
-Bs_mdc=Bdiag_mdc(1,:);
+Bs_mdc=Bdiag_mdc(1,:); % TODO ask this
 Bu_mdc=Bdiag_mdc(2,:);
 
 %% defining the desired output and filtering it two times
@@ -98,6 +101,10 @@ Ut = Uff +Kp*yd' +Kd*y1d';
 subplot(212), plot(time,yd,'r',time,yf,'g')
 xlabel('time'); ylabel('ouput achieved in green');
 legend('yd', 'y with uff+ufb')
+
+%% Check the result of two different decomposition method
+test_1 = N * Aint * Nin 
+test_2 = T_mdc_inv * Aint * T_mdc 
 
 return
 
