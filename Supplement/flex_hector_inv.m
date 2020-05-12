@@ -1,4 +1,4 @@
-% Hectors model for class
+%% Hectors model for class
 close all; clear all;
 M = [12 1; 1 12]; 
 C = 0.1*[1 -1; -1 1];
@@ -11,16 +11,16 @@ C = [0 1 0 0 ]; D = [0];
 Sys = ss(A,B,C,D);
 tzero(Sys) % finding the zeros of the system
 
-% internal dynamics
+%% internal dynamics
 T = [C;C*A;1 0 0 0 ; 0 0 1 0];
 Tin = inv(T);
 Ahat = (T*A*Tin) -((T*B*C*A*A*Tin)/(C*A*B));
-Bhat = T*B/(C*A*B);  %%%%% nominal system with inverse input
-Aint = Ahat(3:4,3:4); %%% internal dynamics 
+Bhat = T*B/(C*A*B);  % nominal system with inverse input
+Aint = Ahat(3:4,3:4); % internal dynamics 
 Bint = [Ahat(3:4,1:2) Bhat(3:4)];
 eig(Aint);
 
-% the decoupled internal dynamics
+%% the decoupled internal dynamics
 N =  [1.0000    1.0512; 1.0000   -0.9512];
 Nin = inv(N);
 Adiag = N *Aint*Nin;
@@ -28,8 +28,14 @@ Bdiag = N*Bint;
 As = Adiag(2,2); Bs = Bdiag(2,:); %   stable component of internal dynamics 
 Au = Adiag(1,1); Bu = Bdiag(1,:); %   unstable component of internal dynamics 
 
-%return
-% defining the desired output and filtering it two times
+%% use mdc.m
+[As_mdc, Au_mdc, Anh_mdc, A_dec_mdc, T_mdc]=mdc(Aint, 'd');
+T_mdc_inv=inv(T_mdc);
+Bdiag_mdc=T_mdc*Bint;
+Bs_mdc=Bdiag_mdc(1,:);
+Bu_mdc=Bdiag_mdc(2,:);
+
+%% defining the desired output and filtering it two times
 tin = 10; tup = 15;  tf = 25; delt = 0.001; ymax = 10;
 ramp = ymax/(tup-tin);
 t1 = 0:delt:tin; 
@@ -65,25 +71,25 @@ xlabel('time'); ylabel('yd^1')
 subplot(313), plot(time,y2d)
 xlabel('time'); ylabel('yd^2')
 
-%return
+
 U = [yd y1d y2d];
-% simulating the unstable portion  of the internal dynamics 
+%% simulating the unstable portion  of the internal dynamics 
 Utemp  = flipud(U);
 [yu,xu]=lsim(-Au,-Bu,[1],[0],Utemp,time,-(1/Au)*Bu*(Utemp(1,:)'));
 xu = flipud(xu);
-% simulating the stable portion  of the internal dynamics 
+%% simulating the stable portion  of the internal dynamics 
 [ys,xs]=  lsim(As,Bs,[1],[0],U,time,-(1/As)*Bs*(U(1,:)'));
 figure(2); clf; subplot(211), plot(time,xs)
 xlabel('time'); ylabel('xs')
 subplot(212), plot(time,xu)
 xlabel('time'); ylabel('xu')
 
-% Calculating the input
+%% Calculating the input
 Uff = (1/(C*A*B))*(y2d' -C*A*A*Tin*( [yd';y1d'; Nin*[xu';xs']]));
 figure(3); clf; subplot(211), plot(time,Uff)
 xlabel('time'); ylabel('U_{ff}')
 
-% Verify with forward simulation with feedback
+%% Verify with forward simulation with feedback
 Kp = 0.1; Kd = 0.1;
 Acl = A -B*C*Kp -Kd*B*C*A;
 eig(Acl)
