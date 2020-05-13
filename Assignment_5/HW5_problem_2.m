@@ -38,13 +38,19 @@ A_int = A_hat(3:6,3:6); % internal dynamics
 B_int = [A_hat(3:6,1:2) B_hat(3:6)];
 
 %% mdc decomposition
-[As, Au, Anh, A_dec, T_mdc]=mdc(A_int, 'c');
-check_A=inv(T_mdc)*A_int*T_mdc;
-% As=A_dec(1:2,1:2);
-% Au=A_dec(3:4,3:4);
-As = [-3.84 0 ; 0 -3.84];
-Au = [6.24  0 ; 0 6.24];
+[As, Au, Anh, A_dec, T_mdc]=mdc(A_int, 'd');
+check_A=inv(T_mdc)*A_int*T_mdc; % check_A should be eqqual to A_dec
 
+As=A_dec(1:2,1:2);
+Au=A_dec(3:4,3:4);
+
+%% TODO problem
+%  As = [-3.84   0.01; 
+%         0.01 -3.84];
+% Au = [6.24  0.01; 
+%       0.01 6.24];
+%%
+  
 Bdiag_mdc=inv(T_mdc)*B_int; 
 Bs=Bdiag_mdc(1:2,:);
 Bu=Bdiag_mdc(3:4,:);
@@ -86,9 +92,9 @@ subplot(313), plot(time,y2d);xlabel('time'); ylabel('yd^2')
 U = [yd y1d y2d];
 %% simulating the unstable portion  of the internal dynamics 
 Utemp  = flipud(U);
-(-Bu*( [ 1;0;0] ) ) ./ (Au)
-[yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, [1.1903 0;0 1.1903]  );
-% [yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, -(1./Au) *Bu*( Utemp(1,:)' )   );
+% (-Bu*( [ 1;0;0] ) ) ./ (Au)
+% [yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, [1.1903 0 ; 0 1.1903]  );
+[yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, -(1./Au) *Bu*( Utemp(1,:)' )   );
 xu = flipud(xu);
 
 %% simulating the stable portion  of the internal dynamics 

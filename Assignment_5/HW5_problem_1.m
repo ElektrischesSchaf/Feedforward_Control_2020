@@ -2,8 +2,9 @@ clc; clear;
 [g_1_num, g_1_de] = zp2tf([-10 -20 -2]', [-3 -4 -5 -6 -7], 1);
 [g_2_num, g_2_de] = zp2tf([-2]', [-3 -4 -5 -6 -7], 200);
 [A_1, B_1, C_1, D_1] = tf2ss(g_1_num, g_1_de);
+sys_1=ss(A_1,B_1,C_1,D_1);
 [A_2, B_2, C_2, D_2] = tf2ss(g_2_num, g_2_de);
-
+sys_2=ss(A_2,B_2,C_2,D_2);
 r_1= 2; r_2=4;
 
 %% defining the desired output and filtering it two times
@@ -75,7 +76,7 @@ options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 ]); % don't forget this 
 Z_ref=[ y1d y2d eta_result];
 X_ref=inv(T)*Z_ref';
 U_inv_reduce_order_1=(1/(C_1*A_1^(r_1-1)*B_1))*(y2d-C_1*A_1^(r_1)*X_ref);
-
+y_result_1=lsim(sys_1, U_inv_reduce_order_1(:,1), t);
 
 %% G2 relative degree=4
 T_t=[C_1; C_1*A_1; C_1*A_1*A_1 ;C_1*A_1*A_1*A_1];
@@ -96,6 +97,13 @@ options = odeset('RelTol',1e-6,'AbsTol',[1e-6]); % don't forget this !!
 Z_ref=[ yd y1d y2d y3d eta_result];
 X_ref=inv(T)*Z_ref';
 U_inv_reduce_order_2=(1/(C_2*A_2^(r_2-1)*B_2))*(y4d-C_2*A_2^(r_2)*X_ref);
+y_result_2=lsim(sys_2, U_inv_reduce_order_2(:,1), t);
+
+%% plot the result
+figure(3); clf; 
+subplot(311), plot(time,yd);xlabel('time'); ylabel('yd');
+subplot(312), plot(time,y_result_1);xlabel('time'); ylabel('y result 1');
+subplot(313), plot(time,y_result_2);xlabel('time'); ylabel('y result 2');
 
 
 %% Solving Eta (reduce order)
