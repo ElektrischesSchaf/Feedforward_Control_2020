@@ -76,7 +76,7 @@ Z_ref=[ y1d y2d eta_result];
 X_ref=inv(T)*Z_ref';
 U_inv_reduce_order_1=(1/(C_1*A_1^(r_1-1)*B_1))*(y2d-C_1*A_1^(r_1)*X_ref);
 
-%{
+
 %% G2 relative degree=4
 T_t=[C_1; C_1*A_1; C_1*A_1*A_1 ;C_1*A_1*A_1*A_1];
 T_b=[
@@ -85,7 +85,7 @@ T_b=[
 T=[T_t; T_b];
 inv(T);
 T_inv_L=T_inv(:, 1:4);
-T_inv_R=T_inv(:, 4:5);
+T_inv_R=T_inv(:, 5);
 A_inv_red = T_b*A_1*T_inv_R-(T_b*B_1*C_1*(A_1^r_1)*T_inv_R)/(C_1*A_1^(r_1-1)*B_1);
 B_inv_red = [ T_b*A_1*T_inv_L-(T_b*B_1*C_1*(A_1^r_1)*T_inv_L)/(C_1*A_1^(r_1-1)*B_1) ,  (T_b*B_1)/(C_1*A_1^(r_1-1)*B_1) ];
 Y_d=[yd y1d y2d y3d y4d];
@@ -93,11 +93,11 @@ time_span=t;
 IC=[0];
 options = odeset('RelTol',1e-6,'AbsTol',[1e-6]); % don't forget this !!
 [t_out, eta_result]=ode45( @(t_in, eta) solve_eta_2(t_in, eta, A_inv_red, B_inv_red, Y_d), time_span, IC, options);
-Z_ref=[ y1d y2d y3d eta_result];
+Z_ref=[ yd y1d y2d y3d eta_result];
 X_ref=inv(T)*Z_ref';
-U_inv_reduce_order_2=(1/(C_1*A_1^(r_1-1)*B_1))*(y2d-C_1*A_1^(r_1)*X_ref);
+U_inv_reduce_order_2=(1/(C_2*A_2^(r_2-1)*B_2))*(y4d-C_2*A_2^(r_2)*X_ref);
 
-%}
+
 %% Solving Eta (reduce order)
 function eta_dot= solve_eta_1(t_in, eta, A_inv_red, B_inv_red, Y_d)
     time=[0:0.001:10];% must be consistant to real time span, not choose arbitrary value such as 1:1:101
@@ -108,7 +108,7 @@ function eta_dot= solve_eta_1(t_in, eta, A_inv_red, B_inv_red, Y_d)
     eta_dot=A_inv_red*eta+B_inv_red*new_Y_d;
 end
 
-%{
+
 function eta_dot= solve_eta_2(t_in, eta, A_inv_red, B_inv_red, Y_d)
     time=[0:0.001:10];% must be consistant to real time span, not choose arbitrary value such as 1:1:101
     y_d_1=interp1(time,  Y_d(:,1), t_in);
@@ -119,4 +119,3 @@ function eta_dot= solve_eta_2(t_in, eta, A_inv_red, B_inv_red, Y_d)
     new_Y_d=[y_d_1; y_d_2; y_d_3; y_d_4; y_d_5];
     eta_dot=A_inv_red*eta+B_inv_red*new_Y_d;
 end
-%}
