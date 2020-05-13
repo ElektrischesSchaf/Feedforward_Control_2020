@@ -39,7 +39,7 @@ T_b=[
    0 0 0 0 0 1;
    ];
 T=[T_t; T_b];
-Z_ref=[yd; yv];
+% Z_ref=[yd; yv]; % wrong
 T_inv=inv(T);
 T_inv_L=T_inv(:, 1:2);
 T_inv_R=T_inv(:, 3:6);
