@@ -78,10 +78,10 @@ xlabel('time'); ylabel('yd^2')
 U = [yd y1d y2d];
 %% simulating the unstable portion  of the internal dynamics 
 Utemp  = flipud(U);
-[yu,xu]=lsim(-Au,-Bu,[1],[0],Utemp,time,-(1/Au)*Bu*(Utemp(1,:)'));
+[yu,xu]=lsim(-Au,-Bu,[1],[0],Utemp,time,-(inv(Au))*Bu*(Utemp(1,:)'));
 xu = flipud(xu);
 %% simulating the stable portion  of the internal dynamics 
-[ys,xs]=  lsim(As,Bs,[1],[0],U,time,-(1/As)*Bs*(U(1,:)'));
+[ys,xs]=  lsim(As,Bs,[1],[0],U,time,-(inv(As))*Bs*(U(1,:)'));
 figure(2); clf; subplot(211), plot(time,xs)
 xlabel('time'); ylabel('xs')
 subplot(212), plot(time,xu)

@@ -102,10 +102,16 @@ y_result_2=lsim(sys_2, U_inv_reduce_order_2(:,1), t);
 %% plot the result
 figure(3); clf; 
 subplot(311), plot(time,yd);xlabel('time'); ylabel('yd');
-subplot(312), plot(time,y_result_1);xlabel('time'); ylabel('y result 1');
-subplot(313), plot(time,y_result_2);xlabel('time'); ylabel('y result 2');
+subplot(312), plot(time,y_result_1);xlabel('time'); ylabel('y with u_{ff}');
+subplot(313), plot(time,y_result_2);xlabel('time'); ylabel('y with u_{ff}');
 
+figure(4); clf;
+plot(time,y_result_1);
+xlabel('time'); ylabel('y with u_{ff} in sys 1');
 
+figure(5); clf;
+plot(time,y_result_2);
+xlabel('time'); ylabel('y with u_{ff} in sys 2');
 %% Solving Eta (reduce order)
 function eta_dot= solve_eta_1(t_in, eta, A_inv_red, B_inv_red, Y_d)
     time=[0:0.001:10];% must be consistant to real time span, not choose arbitrary value such as 1:1:101

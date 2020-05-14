@@ -94,27 +94,28 @@ U = [yd y1d y2d];
 Utemp  = flipud(U);
 % (-Bu*( [ 1;0;0] ) ) ./ (Au)
 % [yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, [1.1903 0 ; 0 1.1903]  );
-[yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, -(1./Au) *Bu*( Utemp(1,:)' )   );
+[yu,xu] = lsim(-Au,-Bu,[1 1],[0],Utemp,time, -(inv(Au)) *Bu*( Utemp(1,:)' )   );
 xu = flipud(xu);
 
 %% simulating the stable portion  of the internal dynamics 
-[ys,xs] =  lsim(As,Bs,[1 1],[0],U,time,-(1./As)*Bs*(U(1,:)'));
+[ys,xs] =  lsim(As,Bs,[1 1],[0],U,time,-(inv(As))*Bs*(U(1,:)'));
 figure(2); clf; subplot(211), plot(time,xs)
 xlabel('time'); ylabel('xs')
 subplot(212), plot(time,xu)
 xlabel('time'); ylabel('xu')
 
 %% Calculating the input
-Uff = (1./(C*A*B))*(y2d' -C*A*A*T_in*( [yd';y1d'; T_mdc*[xu';xs']]));
-figure(3); clf; subplot(211), plot(time,Uff)
+Uff = (1./(C*A^(r-1)*B))*(y2d' -C*A*A*T_in*( [yd';y1d'; T_mdc*[xs';xu']])); % important
+figure(3); clf; subplot(311), plot(time,Uff)
 xlabel('time'); ylabel('U_{ff}')
 
 %% Verify with forward simulation with feedback
-Kp = 0.1; Kd = 0.1;
+Kp = 0.001; Kd = 0.001;
 Acl = A -B*C*Kp -Kd*B*C*A;
 eig(Acl)
 Ut = Uff +Kp*yd' +Kd*y1d';
 [yf,xf]=lsim(Acl,B,C,D,Ut,time);
-subplot(212), plot( time, yd, '*', time, yf, 'g' )
-xlabel('time'); ylabel('ouput achieved in green');
-legend('yd', 'y with uff+ufb')
+subplot(312), plot( time, yd, 'r')
+xlabel('time'); ylabel('y with u_{ff}');
+subplot(313), plot( time, yf, 'g'  )
+xlabel('time'); ylabel('y with u_{ff} + u_{fb}');
