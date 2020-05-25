@@ -21,7 +21,7 @@ xlabel('time'); ylabel('y unfiltered')
 % filtering the desired signal 
 Wf = 1; % choose a filter break frequency in Hz
 num = [Wf*2*pi]; den = [1 (Wf*2*pi)]; % first order filter
-[Af,Bf,Cf,Df] = tf2SS(num,den);
+[Af,Bf,Cf,Df] = tf2ss(num,den);
 Sys_f = ss(Af,Bf,Cf,Df); % first order filter system
 Sysf = Sys_f*Sys_f*Sys_f*Sys_f*Sys_f; % fifth order filter
 [yd,xtemp]= lsim(Sysf,y,t); % filter the desired signal
