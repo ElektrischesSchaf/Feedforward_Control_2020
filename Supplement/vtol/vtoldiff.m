@@ -16,7 +16,9 @@ theta_1d = interp1(time,Theta_1d,t);
 theta = x(5);
 
 % The feedback controller PD 
-u2_fb = -0.01*(x(5)-thetad) -0.01*(x(6)-theta_1d);
+Kp=0.01;
+Kd=0.01;
+u2_fb = -Kp*(x(5)-thetad) -Kd*(x(6)-theta_1d);
 u2 = u2 + u2_fb;
 
 xdiff = zeros(6,1);

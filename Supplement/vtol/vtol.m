@@ -68,32 +68,33 @@ gamma =  sqrt(lambda*g/epsilon);
 eta = zeros(2,length(time))';
 theta = eta(:,1);
 TransM = (1/(2*gamma))*[gamma -1; gamma 1];
-% Aold = [0 1; gamma*gamma 0]; TransM*Aold*inv(TransM) --- check internal dynamics decoupling
-%
+Aold = [0 1; gamma*gamma 0]; 
+TransM*Aold*inv(TransM);  % check internal dynamics decoupling
+
 figure(3); clf
 theta_store = [];
 nsteps = 30;
 %% iterative procedure 
-for jj = 1:1:nsteps,  
-p = (lambda/epsilon)*(((x2d).*cos(theta))+((y2d).*sin(theta)) +(g*sin(theta))  -g*theta);
-[zs,zstemp] = lsim(-gamma,(-1/(2*gamma)),1,0,p,t);
-[zu,zutemp] = lsim(-gamma,(-1/(2*gamma)),1,0,flipud(p),t);
-zu = flipud(zu);
-%%%% compute the new internal dynamics
-eta = (inv(TransM)*[zs zu]')';
-error = norm(theta -eta(:,1))
-theta = eta(:,1);
-theta_1d = eta(:,2);
-theta_store = [theta_store theta];
-%%%% plot theta and internal states every iteration 
-subplot(311), plot(time,zs); hold on
-xlabel('time'); ylabel('z_s')
-subplot(312), plot(time,zu)
-xlabel('time'); ylabel('z_u'); hold on
-subplot(313), plot(time,theta)
-xlabel('time'); ylabel('\theta')
-drawnow
-zoom on; hold on
+for jj = 1:1:nsteps
+    p = (lambda/epsilon)*(((x2d).*cos(theta))+((y2d).*sin(theta)) +(g*sin(theta))  -g*theta);
+    [zs,zstemp] = lsim(-gamma, (-1/(2*gamma)), 1, 0, p, t);
+    [zu,zutemp] = lsim(-gamma, (-1/(2*gamma)), 1, 0, flipud(p), t);
+    zu = flipud(zu);
+    %%%% compute the new internal dynamics
+    eta = (inv(TransM)*[zs zu]')';
+    error = norm(theta -eta(:,1))
+    theta = eta(:,1);
+    theta_1d = eta(:,2);
+    theta_store = [theta_store theta];
+    %%%% plot theta and internal states every iteration 
+    subplot(311), plot(time,zs); hold on
+    xlabel('time'); ylabel('z_s')
+    subplot(312), plot(time,zu)
+    xlabel('time'); ylabel('z_u'); hold on
+    subplot(313), plot(time,theta)
+    xlabel('time'); ylabel('\theta')
+    drawnow
+    zoom on; hold on
 end
 figure(3); hold off
 %%%% plot theta changes over the iterations
