@@ -1,3 +1,5 @@
+
+
 clc; clear;
 r=2;
 M=1; m=1; L=1; B=1; g=1;
@@ -72,24 +74,25 @@ title('Origianl system output after applied U_f_f');
 % TODO find A, B, C, D
 % https://www.mathworks.com/help/control/getstart/pole-placement.html
 % https://www.mathworks.com/help/control/ref/place.html
-new_A=[0,0,0,0;
-    0 0 0 m*L*B;
-    0 0 0 0;
-    0 0 0 -(M+m)*B]./(m*M*L);
 
-new_B=[0 ; m*L*L ; 0 ; -m*L];
+new_A=[0,1,0,0;
+    0 0 1 1;
+    0 0 0 1;
+    0 0 -2 -2];
+new_B=[0 ; m*L*L ; 0 ; m*L];
+% new_A=[0 0 1 0;0 0 0 1;0 1 0 1;0 -2 0 -2];
+% new_B=[0 ; 0 ; 1 ; 1];
 new_C=[1 0 0 0];
 new_D=0;
-% p=[-1, -2, -3, -4];
-K=1;
+p=[-1, -2, -3, -4];
 % relateive degree r=2
 % T=[new_C; new_C*new_A];
-% K=place(new_A, new_B, p);
+K=place(new_A, new_B, p);
 A_cl=(new_A-new_B*K);
 B_cl=new_B;
 C_cl=new_C;
 D_cl=new_D;
-input_ff_and_fd=U_inv + K*X_ref(1,:)';
+input_ff_and_fd=U_inv + (K*X_ref(:,:))';
 system_close_loop=ss(A_cl, B_cl, C_cl, D_cl);
 X_ref_transpose=X_ref';
 y_close_loop=lsim(system_close_loop, input_ff_and_fd, t); % input_close_loop(:,1): the first column of close loop input

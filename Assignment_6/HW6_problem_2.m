@@ -39,20 +39,30 @@ for i=1:length(y_velocity)-1
 end
 y_acc=[y_acc cc];
 
-%% Calculate inveres response
+%% Initiate the iterative procedure 
 % https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
 eta1=0; eta2=0;
 IC=[eta1, eta2];
+
 % time_span=[0 tf]; % If with this, the response will be downsampled.
 time_span=t;
-options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
-options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
-[time, eta] = ode45( @(time, eta) func(time, eta, y_acc, M, m, L, B, g), time_span, IC, options);
+% options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
+% options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
+% [time, eta] = ode45( @(time, eta) func(time, eta, y_acc, M, m, L, B, g), time_span, IC, options);
+A=
+%% iterative procedure 
+nsteps = 30;
+for jj = 1:1:nsteps
+    
+    
+end
 
 M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : tf];
 y_desired_dot_dot=interp1( ttt, y_acc, time );
-U_inv =  (M+m).*y_desired_dot_dot  - m*L.*cos(eta(:,1)).*((-1/m*L^2)*( -m*g*L.*sin(eta(:,1))+B.*eta(:,2) - m*L.*cos(eta(:,1)).*y_desired_dot_dot ))  +  m*L*sin(eta(:,1)).*eta(:,2).^2  ;
+
+alpha_2_dot=(-1/m*L^2)*( -m*g*L.*sin(eta(:,1))+B.*eta(:,2) - m*L.*cos(eta(:,1)).*y_desired_dot_dot );
+U_inv =  (M+m).*y_desired_dot_dot  -  m*L.*cos(eta(:,1)).*(  alpha_2_dot )  +  m*L*sin(eta(:,1)).*eta(:,2).^2  ;
 
 
 % yee=0:0.2:8;
