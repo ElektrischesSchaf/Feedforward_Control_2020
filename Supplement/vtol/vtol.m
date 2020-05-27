@@ -69,7 +69,10 @@ eta = zeros(2,length(time))';
 theta = eta(:,1);
 TransM = (1/(2*gamma))*[gamma -1; gamma 1];
 Aold = [0 1; gamma*gamma 0]; 
-TransM*Aold*inv(TransM);  % check internal dynamics decoupling
+[V,D]=eig(Aold);
+% V=[ V(:,2)  V(:,1)];
+% V=inv(V);
+check=TransM*Aold*inv(TransM);  % check internal dynamics decoupling
 
 figure(3); clf
 theta_store = [];

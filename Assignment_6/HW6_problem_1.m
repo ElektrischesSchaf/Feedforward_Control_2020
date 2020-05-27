@@ -3,7 +3,6 @@ r=2;
 M=1; m=1; L=1; B=1; g=1;
 %% defining the desired output (and filtering it twice)
 tin = 7 ; tup = 12 ; tf = 22 ; delt = 0.001 ; ymax = 10;
-
 ramp = ymax/(tup-tin);
 t1 = 0:delt:tin; 
 t2=max(t1)+delt:delt:tup;
@@ -12,21 +11,32 @@ y0 = zeros(size(t1));
 y1 = ramp*(t2-max(t1));
 y2 = max(y1)*ones(size(t3));
 t = 0:delt:tf; y = [y0 y1 y2];
-
-%% filtering the desired signal 
+figure(1); clf; subplot(211), plot(t,y); 
+axis([0,tf,-0.1,1.2*ymax])
+xlabel('time'); ylabel('y unfiltered')
+% filtering the desired signal 
 Wf = 1; % choose a filter break frequency in Hz
 num = [Wf*2*pi]; den = [1 (Wf*2*pi)]; % first order filter
 [Af,Bf,Cf,Df] = tf2ss(num,den);
 Sys_f = ss(Af,Bf,Cf,Df); % first order filter system
 Sysf = Sys_f*Sys_f*Sys_f*Sys_f*Sys_f; % fifth order filter
 [yd,xtemp]= lsim(Sysf,y,t); % filter the desired signal
-figure(1);
-subplot(211), plot(t,y); 
-axis([0 tf -1 11]);
-xlabel('time(s)'); ylabel('y (unfiltered)')
-subplot(212), plot(t,yd); 
-xlabel('time(s)'); ylabel('yd (filtered)')
-axis([0 tf -1 11]);
+figure(1);  subplot(212), plot(t,yd); 
+xlabel('time'); ylabel('yd')
+% numerical differentiation
+y1d = diff(yd,1)/(delt^1); % the first derivative of yd
+y1d = [y1d;0];
+y2d = diff(yd,2)/(delt^2); % the second derivative of yd
+y2d = [y2d;0;0];
+[mm,nn] = size(y2d);
+time = 0:delt:(mm-1)*delt;
+figure(1); clf; subplot(311), plot(time,yd)
+xlabel('time'); ylabel('yd')
+subplot(312), plot(time,y1d)
+xlabel('time'); ylabel('yd^1')
+subplot(313), plot(time,y2d)
+xlabel('time'); ylabel('yd^2')
+
 
 %% y_desired_double_dot
 for i=1:length(y)-1
@@ -41,22 +51,59 @@ y_acc=[y_acc cc];
 
 %% Initiate the iterative procedure 
 % https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
-eta1=0; eta2=0;
-IC=[eta1, eta2];
+eta = zeros(2,length(time))';
+theta = eta(:,1);
 
 % time_span=[0 tf]; % If with this, the response will be downsampled.
 time_span=t;
 % options = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6]); 
 % options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
 % [time, eta] = ode45( @(time, eta) func(time, eta, y_acc, M, m, L, B, g), time_span, IC, options);
-A=
+Aold=[0 1;
+   g/L -B/(m*L^2)];
+[V,D]=eig(Aold);
+TransM=inv(V);
+check_1=TransM*Aold*inv(TransM);  % check internal dynamics decoupling
+
+
 %% iterative procedure 
+figure(3); clf
+theta_store = [];
+theta1d_store = [];
 nsteps = 30;
 for jj = 1:1:nsteps
-    
-    
-end
+    p=(g/L).*(sin(theta)-theta)+(1/L).*cos(theta).*y2d;
+    [zs,zstemp] = lsim(-1.618, 0.8507, 1, 0, p, t);
+    [zu,zutemp] = lsim(-0.618, -0.5257, 1, 0, flipud(p), t);
 
+    %%%% compute the new internal dynamics
+    eta = (inv(TransM)*[zs zu]')';
+    error = norm(theta -eta(:,1))
+    theta = eta(:,1);
+    theta_1d = eta(:,2);
+    theta_store = [theta_store theta];
+    theta1d_store = [theta1d_store theta_1d];
+    %%%% plot theta and internal states every iteration 
+    subplot(311), plot(time,zs); hold on
+    xlabel('time'); ylabel('z_s')
+    subplot(312), plot(time,zu)
+    xlabel('time'); ylabel('z_u'); hold on
+    subplot(313), plot(time,theta)
+    xlabel('time'); ylabel('\theta')
+    drawnow
+    zoom on; hold on
+end
+figure(3); hold off
+
+figure(4); clf
+subplot(211);
+plot(time,theta_store,time,theta,'r')
+xlabel('time'); ylabel('iterations of \theta')
+subplot(212);
+plot(time,theta1d_store,'b')
+xlabel('time'); ylabel('iterations of \theta1d')
+
+%{
 M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : tf];
 y_desired_dot_dot=interp1( ttt, y_acc, time );
@@ -112,3 +159,4 @@ function x_diff = cart(t, x_n , U, M, m, L, B, g)
 
 end
 
+%}
