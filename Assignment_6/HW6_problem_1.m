@@ -38,17 +38,6 @@ subplot(313), plot(time,y2d)
 xlabel('time'); ylabel('yd^2')
 
 
-%% y_desired_double_dot
-for i=1:length(y)-1
-    y_velocity(i)=yd(i+1)-yd(i);
-end
-cc=[0]
-y_velocity=[y_velocity cc];
-for i=1:length(y_velocity)-1
-    y_acc(i)=y_velocity(i+1)-y_velocity(i);
-end
-y_acc=[y_acc cc];
-
 %% Initiate the iterative procedure 
 % https://stackoverflow.com/questions/26916066/variable-input-changing-in-time-ode45-matlab
 eta = zeros(2,length(time))';
@@ -70,6 +59,7 @@ check_1=TransM*Aold*inv(TransM);  % check internal dynamics decoupling
 figure(3); clf
 theta_store = [];
 theta1d_store = [];
+error_store = [];
 nsteps = 30;
 for jj = 1:1:nsteps
     p=(g/L).*(sin(theta)-theta)+(1/L).*cos(theta).*y2d;
@@ -78,7 +68,8 @@ for jj = 1:1:nsteps
 
     %%%% compute the new internal dynamics
     eta = (inv(TransM)*[zs zu]')';
-    error = norm(theta -eta(:,1))
+    error = norm(theta -eta(:,1));
+    error_store=[error_store error ];
     theta = eta(:,1);
     theta_1d = eta(:,2);
     theta_store = [theta_store theta];
@@ -101,8 +92,14 @@ plot(time,theta_store,time,theta,'r')
 xlabel('time'); ylabel('iterations of \theta')
 subplot(212);
 plot(time,theta1d_store,'b')
-xlabel('time'); ylabel('iterations of \theta1d')
+xlabel('time'); ylabel('iterations of \theta_{1d}')
 
+a_double_dot=(g/L).*(sin(theta_store))-(B/(m*L*L)).*theta1d_store+ (1/L).*cos(theta_store).*y2d;
+U_ff=(M+m).*y2d-m*L.*cos(theta_store).*(a_double_dot)+m*L.*sin(theta_store).*(theta1d_store).^2;
+
+figure(5); clf;
+plot(time, U_ff);
+title('U_{ff}');
 %{
 M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : tf];
