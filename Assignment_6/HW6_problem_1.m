@@ -10,7 +10,8 @@ t3=max(t2)+delt:delt:tf;
 y0 = zeros(size(t1));
 y1 = ramp*(t2-max(t1));
 y2 = max(y1)*ones(size(t3));
-t = 0:delt:tf; y = [y0 y1 y2];
+t = 0:delt:tf ;
+y = [y0 y1 y2] ;
 figure(1); clf; subplot(211), plot(t,y); 
 axis([0,tf,-0.1,1.2*ymax])
 xlabel('time'); ylabel('y unfiltered')
@@ -75,12 +76,14 @@ for jj = 1:1:nsteps
     theta_store = [theta_store theta];
     theta1d_store = [theta1d_store theta_1d];
     %%%% plot theta and internal states every iteration 
-    subplot(311), plot(time,zs); hold on
+    subplot(411), plot(time,zs); hold on
     xlabel('time'); ylabel('z_s')
-    subplot(312), plot(time,zu)
+    subplot(412), plot(time,zu)
     xlabel('time'); ylabel('z_u'); hold on
-    subplot(313), plot(time,theta)
+    subplot(413), plot(time,theta)
     xlabel('time'); ylabel('\theta')
+    subplot(414), plot(time,theta_1d)
+    xlabel('time'); ylabel('\theta_{1d}')
     drawnow
     zoom on; hold on
 end
@@ -94,12 +97,63 @@ subplot(212);
 plot(time,theta1d_store,'b')
 xlabel('time'); ylabel('iterations of \theta_{1d}')
 
-a_double_dot=(g/L).*(sin(theta_store))-(B/(m*L*L)).*theta1d_store+ (1/L).*cos(theta_store).*y2d;
-U_ff=(M+m).*y2d-m*L.*cos(theta_store).*(a_double_dot)+m*L.*sin(theta_store).*(theta1d_store).^2;
+a_double_dot = (g/L).*(sin(theta_store)) - (B/(m*L*L)).*theta1d_store + (1/L).*cos(theta_store).*y2d;
+U_ff = (M+m).*y2d  -  m*L.*cos(theta_store).*(a_double_dot)  +  m*L.*sin(theta_store).*(theta1d_store).^2;
 
 figure(5); clf;
 plot(time, U_ff);
 title('U_{ff}');
+
+U=[U_ff ,  t', theta_store, theta1d_store];
+
+figure(6);
+options2 = odeset('RelTol',1e-6,'AbsTol',[1e-6 1e-6 1e-6 1e-6]); 
+[ta, x_n]=ode45(@(ta, x_n) cart(ta, x_n, U, M, m, L, M, g), time_span, [0 0 0 0], options2);
+subplot(211);
+plot(x_n(:,1));
+title('desired output y');
+
+subplot(212);
+plot(x_n(:,2));
+title('desired output y1d');
+
+% x_n(1)= Xc, x_n(2)= Xc_dot, x_n(3)= theta, x_n(4)= theta_dot
+function x_diff = cart(t, x_n , U, M, m, L, B, g)    
+    F=U(:,1);
+    time=U(:,2);
+    theta=U(:,3);
+    theta1d=U(:,3);
+    
+    u_ff = interp1(time, F, t);
+    theta = interp1(time, theta, t);
+    theta1d = interp1(time, theta1d, t);    
+%     u=u_ff;
+    
+    % The feedback controller PD 
+    Kp = 1;
+    Kd = 1;
+    u_fb = -Kp*(x_n(3)-theta) -Kd*(x_n(4)-theta1d);
+    u = u_ff + u_fb;
+%     u = u_fb;
+
+    x_diff  =zeros(2,1);
+    x_diff(1) = x_n(2);
+    x_diff(3) = x_n(4);
+    A_s = [m*L*L  , -m*L.*-cos(x_n(3));
+            -m*L.*-cos(x_n(3))   ,  M+m];
+    A_s = A_s.*(1/(m*M*L*L+m*m*L*L.*-sin(x_n(3)).*-sin(x_n(3)) ) );
+    
+    B_s = [m*L.*-sin(x_n(3)).*x_n(4).^2 + u;
+           -m*g*L.*-sin(x_n(3))-B.*x_n(4)];    
+
+    C_s = A_s*B_s;
+    
+    x_diff(2)=C_s(1);
+    x_diff(4)=C_s(2);
+
+end
+
+
 %{
 M=1; m=1; L=1; B=1; g=9.8;
 ttt= [0: delt : tf];
