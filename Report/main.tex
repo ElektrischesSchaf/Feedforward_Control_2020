@@ -1,0 +1,84 @@
+
+\documentclass[8pt,a4paper]{article}
+\usepackage{fullpage}
+\usepackage{indentfirst} %首段縮排
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd,longtable}
+\usepackage{lastpage}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{float}  % in order to use H for figure position
+\usepackage{graphicx}
+\graphicspath{{./Figures_for_main_paper/}{./Figures_for_A_New_Numerical_Method/}}
+\DeclareGraphicsExtensions{.pdf,.jpg,.png,.mps} % Portable Document Format,
+%\usepackage{luacode}  % This can not let Reference to be showed by Butters
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{xeCJK} %For Traditional Chinese in XeLaTeX
+\setCJKmainfont{MingLiU} %For Traditional Chinese in XeLaTeX
+\setCJKsansfont{Microsoft JhengHei} %For Traditional Chinese in XeLaTeX
+
+% BibTeX
+%\usepackage{bibentry} %Function unknown added by Per Sahlholm
+%\usepackage[round,authoryear]{natbib} %Nice author (year) citations
+\usepackage[square,numbers]{natbib} %Nice numbered citations
+%\usepackage{cite} % Make references as [1-4], not [1,2,3,4]
+%\newcommand{\bibspace}{\vspace{2mm}}
+\bibliographystyle{unsrtnat} % Unsorted bibliography by Butters
+%\bibliographystyle{plainnat} %Choose for including URLs   %Commented by Butters
+%\bibliographystyle{unsrt} 
+%\bibpunct{[}{]}{,}{y}{,}{,}
+%\renewcommand{\bibsection}{} %Removes the References chapter title
+%\usepackage[numbib,notlof,notlot,nottoc]{tocbibind} %Adds number to bibliography
+
+\let\ds\displaystyle
+\usepackage[shortlabels]{enumitem}
+\pagenumbering{gobble} % Remove page number
+
+
+\pagestyle{plain}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue, 
+  citecolor=blue,% new
+  linkbordercolor={0 0 1}
+}
+
+\begin{document}
+
+\title{ \bf{ Feedforwad Control Final Project \\  Decoding Hand movement with Wiener Filter }}
+\author{ Hsi-Chih Wu \\ Department of Mechanical Engineering, National Cheng Kung University \\ Email: N16074988@gs.ncku.edu.tw  }
+\date{}
+
+\maketitle
+
+\begin{multicols}{2}
+
+\section*{Abstract}
+
+\section{Introduction}
+
+\section{Dataset}
+
+\section{Wiener Filter}
+
+\section{Results}
+
+\section{Conclustion}
+
+\bibliography{./reference} \label{sec:references}
+\newpage
+
+
+\end{multicols}
+
+\end{document}
