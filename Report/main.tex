@@ -2,7 +2,7 @@
 \documentclass[8pt,a4paper]{article}
 \usepackage{fullpage}
 \usepackage{indentfirst} %首段縮排
-\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage[top=1.5cm, bottom=1.5cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{amsmath,amsthm,amsfonts,amssymb,amscd,longtable}
 \usepackage{lastpage}
 \usepackage{enumerate}
@@ -55,24 +55,120 @@
 \begin{document}
 
 \title{ \bf{ Feedforward Control Final Project \\  Decoding Hand movement with Wiener Filter }}
-\author{ Hsi-Chih Wu \\ Department of Mechanical Engineering, National Cheng Kung University \\ Email: N16074988@gs.ncku.edu.tw  }
+\author{ Hsi-Chih Wu 伍錫志 \\ Department of Mechanical Engineering, National Cheng Kung University \\ Email: N16074988@gs.ncku.edu.tw  }
 \date{}
 
 \maketitle
 
-\begin{multicols}{2}
-
 \section*{Abstract}
 
-\section{Introduction}
+This reseach used Wiener filter to decode the hand movement of the monkey, with invasive electrode implanted in its brain. 
+With the help of iterative control, the weights of the Wiener filter can be adjusted, and the error will approah to the mininum.
 
-\section{Dataset}
+\begin{multicols}{2}
 
-\section{Wiener Filter}
+\section*{Introduction}
 
-\section{Results}
+Brain machine interface (BMI) 
 
-\section{Conclustion}
+\section*{Dataset}
+
+We use the open source dataset ,\href{https://zenodo.org/record/583331#.XWirEigzZPb}{Nonhuman Primate Reaching with Multichannel Sensorimotor Cortex Electrophysiology}, 
+publised by the author of \cite{makin2018}. Two monkeys, Indy and Loco, performed hand-reaching tasks for several minutes. 
+The neural data was recorded using 96-channel silicon microelectrode array, and the self-reaching was performed in a  $8 \times 8$ virtual grid. 
+The panel was placed between the monkeys' hand and their eyes, making the monkeys unable to actual see its arms during the experiment period. 
+The neurla signal was sampled at 24.4kHz and the fingertip position was sampled at 250Hz. 
+An IIR bandpass filter was then used to extract signal from 500Hz to 5000Hz from the raw neural signal, and determined a threhold value, to isolate spike units. 
+37 sessions of monkey Indy's spike train data and 10 sessions of monkey Loco's are provided from the website.  
+However, only 30 sessions of monkey Indy still have its raw neural signal remain, while the rest raw data are unfortunately lost. 
+This reseach only consider the sorted spike train session as input, refrain from doing other signal processing techniques on our own.
+
+\section*{Wiener Filter}
+
+The Wiener filters are linear least square filters which can be used for prediction, estimation, interpolation, signal and noise filtering and so forth.\cite{widrow1987}
+The impulse response of a FIR filter can be expressed algebraically as 
+
+\begin{align}
+  \begin{split}
+  g_{k} &= f_{k}h_{0} + f_{k-1}h_{1} + f_{k-2}h_{2} + \cdots \\
+        &= \sum_{l=0}^{\infty} f_{k-l}h_{l}
+  \end{split}
+\end{align}
+Which is a convolution of the input signal $f_{k}$ with the impulse response $h_{k}$, can be represented as
+
+\begin{align}
+\label{eq:conv}
+  g_{k} &= f_{k} * h_{k} 
+        = \sum_{l=0}^{\infty} f_{k-l}h_{l} 
+\end{align}
+
+The z-transform of the input $f_{k}$ is defined as
+
+\begin{align}
+  \label{eq:z-transform}
+  F(z)&\triangleq \sum_{k=-\infty}^{\infty} f_{k}z^{-k}
+\end{align}
+
+The z-transform of the output signal $g_{k}$ can be obtained from definition in Eq \ref{eq:z-transform} and in the convolution in Eq \ref{eq:conv}. Thus, 
+
+\begin{align}
+  \begin{split}
+  G(z)&\triangleq \sum_{k=-\infty}^{\infty} g_{k}z^{-k}\\
+      &=\sum_{k=-\infty}^{\infty} z^{-k} \sum_{l=0}^{\infty} f_{k-l}h_{l} \\
+      &=\sum_{k=-\infty}^{\infty} \sum_{l=0}^{\infty} z^{-k}f_{k-l}h_{l}
+  \end{split}
+\end{align}
+
+After z-transform, the above can be express as
+
+\begin{align}
+  G(z) &= H(z) \cdot F(z)
+\end{align}
+
+Now we define the autocorrelation of $f_{k}$ as
+
+\begin{align}
+  \phi_{ff}(m) &\triangleq E \left[ f_{k} \cdot f_{k+m} \right]
+\end{align}
+
+where the symbo $E[\cdot]$ represents expectation. The autocorrelation function can also be expressed as time average:
+
+\begin{align}
+  \phi_{ff}(m) &= \lim_{N\rightarrow\infty} \frac{1}{2N+1} \sum_{l=-N}^{N} f_{k-l} \cdot f_{k-l+m}
+\end{align}
+
+The crosscorrelation function between input $f_{k}$ and the output $g_{k}$ is defined as
+
+\begin{align}
+  \phi_{fg}(m) &\triangleq E \left[ f_{k} \cdot g_{k+m} \right] = \phi_{gf}(-m)
+\end{align}
+
+Using Eq\ref{eq:conv}, this can be express as
+
+\begin{align}
+  \begin{split}
+    \phi_{fg}(m) &= E \left[ f_{k} \sum_{t=0}^{\infty} f_{k-l+m}h_{l} \right]\\
+    &= E \left[ \sum_{l=0}^{\infty} h_{l} f_{k} f_{k-l+m} \right]
+  \end{split}
+\end{align}
+
+and since $h_{t}$ is fixed for all $ l $, and since $f_{k}$ is stohastic, the expression can be writted as
+
+\begin{align}
+  \label{eq:input_output_crosscorrelation}
+  \begin{split}
+    \phi_{fg}(m) &= \sum_{l=0}^{\infty} h_{l} E \left[ f_{k} f_{k-l+m} \right] \\
+    &= \sum_{l=0}^{\infty} h_{l} \phi_{ff}(m-l) \\
+    &= h_{m} * \phi_{ff}(m)
+  \end{split}
+\end{align}
+
+The crosscorrelation between input and output of a linear digitial filter is the convolution of the input autocorrelation function with the impulse response.
+
+
+\section*{Results}
+
+\section*{Conclustion}
 
 \bibliography{./reference} \label{sec:references}
 \newpage

@@ -8,3 +8,5 @@
 *.toc
 *.gz
 *.pdf
+*.bbl
+*.blg
