@@ -139,11 +139,11 @@ After z-transform, the above can be express as
   G(z) &= H(z) \cdot F(z)
 \end{align}
 
-Now we will deprive the autocorrelation of input signal, crosscorrelation between input and output signal, and autocorrelation of output. 
+Now we will derive the \textbf{autocorrelation of input signal}, \textbf{crosscorrelation between input and output signal}, and \textbf{ autocorrelation of output}. 
 
-\subsection*{input autocorrelation}
+\subsection*{Input Autocorrelation}
 \bookmark[level=1,page=\arabic{page}]{input autocorrelation}
-First, we define the autocorrelation of $f_{k}$ as
+We define the autocorrelation of $f_{k}$ as
 
 \begin{align}
   \phi_{ff}(m) &\triangleq E \left[ f_{k} \cdot f_{k+m} \right]
@@ -155,10 +155,10 @@ where the symbo $E[\cdot]$ represents expectation. The autocorrelation function 
   \phi_{ff}(m) &= \lim_{N\rightarrow\infty} \frac{1}{2N+1} \sum_{l=-N}^{N} f_{k-l} \cdot f_{k-l+m}
 \end{align}
 
-\subsection*{input-output crosscorrelation}
+\subsection*{Input-output Crosscorrelation}
 \bookmark[level=1,page=\arabic{page}]{input-output crosscorrelation}
 
-Second, the crosscorrelation function between input $f_{k}$ and the output $g_{k}$ is defined as
+The crosscorrelation function between input $f_{k}$ and the output $g_{k}$ is defined as
 
 
 \begin{align}
@@ -192,9 +192,9 @@ Taking the z-transform of equation \ref{eq:input_output_crosscorrelation}, we ca
   \Phi_{fg}(z)&=H(z) \cdot \Phi_{ff}(z)
 \end{align}
 
-\subsection*{output autocorrelation}
+\subsection*{Output Autocorrelation}
 \bookmark[level=1,page=\arabic{page}]{output autocorrelation}
-Third, the autocorrelation function of the output of the digitial filter is
+The autocorrelation function of the output of the digitial filter is
 
 \begin{align}
   \label{eq:output_autocorrelation}
