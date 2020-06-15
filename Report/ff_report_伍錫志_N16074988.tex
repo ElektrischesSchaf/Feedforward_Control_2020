@@ -15,7 +15,6 @@
 \usepackage{verbatim}
 \usepackage{float}  % in order to use H for figure position
 \usepackage{graphicx}
-\graphicspath{{./Figures_for_main_paper/}{./Figures_for_A_New_Numerical_Method/}}
 \DeclareGraphicsExtensions{.pdf,.jpg,.png,.mps} % Portable Document Format,
 %\usepackage{luacode}  % This can not let Reference to be showed by Butters
 \usepackage{multirow}
@@ -79,13 +78,23 @@ Brain machine interface (BMI)
 
 We use the open source dataset, \href{https://zenodo.org/record/583331#.XWirEigzZPb}{Nonhuman Primate Reaching with Multichannel Sensorimotor Cortex Electrophysiology}, 
 publised by the author of \cite{makin2018}. Two monkeys, Indy and Loco, performed hand-reaching tasks for several minutes. 
-The neural data was recorded using 96-channel silicon microelectrode array, and the self-reaching was performed in a  $8 \times 8$ virtual grid. 
+The neural data was recorded using 96-channel silicon microelectrode array, and the self-reaching was performed in a  $8 \times 8$ virtual grid, illustrated in Figure \ref{fig:monkey_drawing}.
 The panel was placed between the monkeys' hand and their eyes, making the monkeys unable to actual see its arms during the experiment period. 
 The neurla signal was sampled at 24.4kHz and the fingertip position was sampled at 250Hz. 
 An IIR bandpass filter was then used to extract signal from 500Hz to 5000Hz from the raw neural signal, and determined a threhold value, to isolate spike units. 
 37 sessions of monkey Indy's spike train data and 10 sessions of monkey Loco's are provided from the website.  
 However, only 30 sessions of monkey Indy still have its raw neural signal remain, while the rest raw data are unfortunately lost. 
 This reseach only consider the sorted spike train session as input, refrain from doing other signal processing techniques on our own.
+
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=150pt]{./Figures/monkey.jpg}
+      \caption{Animal Experiment}
+      \label{fig:monkey_drawing}
+  \end{center}
+\end{figure}
+
 
 \section*{Method}
 \bookmark[level=chapter,page=\arabic{page}]{Method}
@@ -114,7 +123,7 @@ The z-transform of the input $f_{k}$ is defined as
   F(z)&\triangleq \sum_{k=-\infty}^{\infty} f_{k}z^{-k}
 \end{align}
 
-The z-transform of the output signal $g_{k}$ can be obtained from definition in equation \ref{eq:z-transform} and in the convolution in equation \ref{eq:conv}. Thus, 
+The z-transform of the output signal $g_{k}$ can be obtained from convolution in equation \ref{eq:conv} and in equation \ref{eq:z-transform}. Thus, 
 
 \begin{align}
   \begin{split}
@@ -254,12 +263,22 @@ Implementing z-transform to equation \ref{eq:double_conv}, it becomes
 \subsection*{Two-sided Wiener Filters}
 \bookmark[level=1,page=\arabic{page}]{Two-sided Wiener Filters}
 
-The error is defined as the difference between filter output and the desired response:
+The error is defined as the difference between filter output and the desired response, showed in Fig \ref{fig:wiener}
 
 \begin{align}
   \label{eq:error}
   \epsilon_{k} &= d_{k} - g_{k}
 \end{align}
+
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=200pt]{./Figures/wiener.jpg}
+      \caption{}
+      \label{fig:wiener}
+  \end{center}
+\end{figure}
+
 
 and the impulse response of the Wiener filter is obtained by finding an expresssion for mean square error and minimizing this wirth repect to the impulse response. 
 Squaring both sides of equation \ref{eq:error} and using equation \ref{eq:conv}, we get
@@ -292,7 +311,32 @@ The partial derivative of the MSE with respect to the $j$th impulse of the filte
   \end{split}
 \end{align}
 
+We must set this derivative to zero for all values of $j$. The result is the Wiener impulse response $h_{k}^{*}$, determined by
 
+\begin{align}
+  \sum_{l=-\infty}^{\infty} h_{l}^{*} \phi_{ff}(j-l) &= \phi_{fd}(j),\ for\ all\ j
+\end{align}
+
+This is the Wiener-Hopf equation, and it is in the convolution Format
+
+\begin{align}
+  h_{k}^{*} * \phi_{ff}(k) &= \phi_{fd}(k)
+\end{align}
+
+after takin z-transform of both sides
+
+\begin{align}
+  \begin{split}
+    H^{*}(z) \cdot \Phi_{ff}(z) &= \Phi_{fd}(z),\ or \\
+    H^{*}(z) &= \frac{ \Phi_{fd}(z) }{ \Phi_{ff}(z)  }
+  \end{split}
+\end{align}
+
+and $H^{*}(z)$ is the transfer function of the Wiener filter, which is easily obtained from the z-transforms of the autocorrelation function of the input signal and the crosscorrelation function of between the input and desired response. 
+The Wiener impulse response can be obtained by inverse z-transform of $H^{*}(z)$.
+
+\subsection*{Linear Modeling for BMI and the Wiener Filter}
+\bookmark[level=1,page=\arabic{page}]{Linear Modeling for BMI and the Wiener Filter}
 
 
 \section*{Results}
