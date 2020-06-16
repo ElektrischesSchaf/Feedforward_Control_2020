@@ -52,6 +52,7 @@
   linkbordercolor={0 0 1}
 }
 
+\setlength\parindent{0pt} % no indent
 \begin{document}
 
 \title{ \bf{ Feedforward Control Final Project \\  Decoding Hand movement with Wiener Filter }}
@@ -78,7 +79,7 @@ Brain machine interface (BMI)
 
 We use the open source dataset, \href{https://zenodo.org/record/583331#.XWirEigzZPb}{Nonhuman Primate Reaching with Multichannel Sensorimotor Cortex Electrophysiology}, 
 publised by the author of \cite{makin2018}. Two monkeys, Indy and Loco, performed hand-reaching tasks for several minutes. 
-The neural data was recorded using 96-channel silicon microelectrode array, and the self-reaching was performed in a  $8 \times 8$ virtual grid, illustrated in Figure \ref{fig:monkey_drawing}.
+The neural data was recorded using 96-channel silicon microelectrode array, and the self-reaching was performed in a  $8 \times 8$ virtual grid, illustrated in figure \ref{fig:monkey_drawing}.
 The panel was placed between the monkeys' hand and their eyes, making the monkeys unable to actual see its arms during the experiment period. 
 The neurla signal was sampled at 24.4kHz and the fingertip position was sampled at 250Hz. 
 An IIR bandpass filter was then used to extract signal from 500Hz to 5000Hz from the raw neural signal, and determined a threhold value, to isolate spike units. 
@@ -99,8 +100,16 @@ This reseach only consider the sorted spike train session as input, refrain from
 \section*{Method}
 \bookmark[level=chapter,page=\arabic{page}]{Method}
 
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=220pt]{./Figures/fir.jpg}
+      \caption{}
+      \label{fig:fir_filter}
+  \end{center}
+\end{figure}
+
 The Wiener filters are linear least square filters which can be used for prediction, estimation, interpolation, signal and noise filtering and so forth.\cite{widrow1987}
-The impulse response of a FIR filter can be expressed algebraically as 
+The impulse response of a FIR filter, showed in figure \ref{fig:fir_filter}, can be expressed algebraically as 
 
 \begin{align}
   \begin{split}
@@ -108,6 +117,7 @@ The impulse response of a FIR filter can be expressed algebraically as
         &= \sum_{l=0}^{\infty} f_{k-l}h_{l}
   \end{split}
 \end{align}
+
 Which is a convolution of the input signal $f_{k}$ with the impulse response $h_{k}$, can be represented as
 
 \begin{align}
@@ -139,7 +149,7 @@ After z-transform, the above can be express as
   G(z) &= H(z) \cdot F(z)
 \end{align}
 
-Now we will derive the \textbf{autocorrelation of input signal}, \textbf{crosscorrelation between input and output signal}, and \textbf{ autocorrelation of output}. 
+Now we will derive the autocorrelation of input signal $\Phi_{ff}$, crosscorrelation between input and output signal $\Phi_{fg}$, and autocorrelation of output $\Phi_{gg}$. 
 
 \subsection*{Input Autocorrelation}
 \bookmark[level=1,page=\arabic{page}]{input autocorrelation}
@@ -263,7 +273,7 @@ Implementing z-transform to equation \ref{eq:double_conv}, it becomes
 \subsection*{Two-sided Wiener Filters}
 \bookmark[level=1,page=\arabic{page}]{Two-sided Wiener Filters}
 
-The error is defined as the difference between filter output and the desired response, showed in Fig \ref{fig:wiener}
+The error is defined as the difference between filter output and the desired response, showed in figure \ref{fig:wiener}
 
 \begin{align}
   \label{eq:error}
@@ -337,6 +347,78 @@ The Wiener impulse response can be obtained by inverse z-transform of $H^{*}(z)$
 
 \subsection*{Linear Modeling for BMI and the Wiener Filter}
 \bookmark[level=1,page=\arabic{page}]{Linear Modeling for BMI and the Wiener Filter}
+The solution coincides with the Wiener Hopf solution applied to discrete time data and finite impulse responsive filters (FIRS)\cite{sanchez2007}. 
+Now consider a set of spike counts from $M$ neurons, and the hand position vector $d \in R^c $, where $c$ is the output dimension. 
+The spike count of each neuron is embedded by an $L$-tap discrete time-delay line. 
+The input vector for a linear model at a given time instance $n$ is composed as $x(n)=\left[ x_{1}(n), x_{1}(n-1), \cdots x_{1}(n-L+1), x_{2}(n), \cdots x_{M}(n-L+1) \right]^T $, 
+$x\in R^{L \cdot M}$, where $x_{i}(n-j)$ denotes the spike count of neuron $i$ at time instance $n-j$. A linear model estimation hand position at at time instance n from the embedded spike counts can be describe as
+
+\begin{align}
+  \label{eq:linear_model_1}
+  y^{c} &= \sum_{i=0}^{L-1} \sum_{j=1}^{M} x_{i}(n-j) \omega_{ij}^{c}+b^{c}
+\end{align}
+
+where $y^{c}$ is the $c$ coordinate of the estimated hand position by the model, $\omega_{ij}^{c}$ is a weight on the connection from $x_{i}(n-j)$ to $y^{c}$, 
+and $b^{c}$ is a bias for the $c$ coordinate. In a matrix form, we can write equation \ref{eq:linear_model_1} as 
+
+\begin{align}
+  y&=W^{T} x
+\end{align}
+
+where $y$ is a $C$-dimensional output vector, $W$ is a weight matirx of dimension $(L \cdot M +1 )$.
+
+For a MIMO case, the weight matrix in the Wiener filter system is estimated by 
+
+\begin{align}
+  W_{wiener}=R^{-1} P 
+\end{align}
+
+$R$ is the correlation matrix of neural spike inputs with the dimension of $(L \cdot M) \times (L \cdot M)$, 
+
+\begin{align}
+  R &= \left[ \begin{array}{cccc}
+    r_{11} & r_{12} & \cdots & r_{1M} \\
+    r_{21} & r_{22} & \cdots & r_{2M} \\ 
+    \vdots & \vdots & \ddots & \vdots \\
+    r_{M1} & r_{M2} & \cdots &  r_{MM} \\
+    \end{array} 
+    \right]
+\end{align}
+
+where $r_{ij}$ is the $L \times L$ crosscorrelation matrix between neurons $i$ and $j(i \neq j)$, and $r_{ii}$ is the $ L\times L$ autocorrelation matrix of neuron $i$. 
+$P$ is the $(L \cdot M) \times C$ crosscorrelation matrix between the neuronal bin count and hand position as
+
+\begin{align}
+  P &= \left[ 
+    \begin{array}{cccc}
+      P_{11} & P_{12} & \cdots & P_{1C} \\
+      P_{21} & P_{22} & \cdots & P_{2C} \\ 
+      \vdots & \vdots & \ddots & \vdots \\
+      P_{M1} & P_{M2} & \cdots & P_{MC} \\
+    \end{array}
+  \right]
+\end{align}
+
+where $p_{ic}$ is the crosscorrelation vector between neuron $i$ and the $c$ coordinate of hand position. 
+The predictor $W_{wiener}^{T} x$ minimuzes the mean square error cost function, 
+
+\begin{align}
+  J&= E \left[   \lvert \lvert e   \rvert\rvert^{2}  \right], \ e=d-y
+\end{align}
+
+By applying the iterative or adaptive algorithms, we can approximate the Wiener solution sample by sample. 
+Take gradient descent for example, the weights are corrected at each sample proportionally to the neagive direction of the gradient. 
+
+\begin{align}
+  \omega(n+1)&= \omega(n) -\eta  \nabla J(n)
+\end{align}
+
+where $ \eta $ is the stepsize. The LMS algorithm, which approximates locally the gradient of the cost function, 
+
+\begin{align}
+  \omega(n+1) &= \omega(n) + \eta e(n) x(n)
+\end{align}
+
 
 
 \section*{Results}
