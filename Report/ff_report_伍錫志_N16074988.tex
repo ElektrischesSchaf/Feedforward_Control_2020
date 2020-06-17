@@ -64,15 +64,21 @@
 \section*{Abstract}
 \bookmark[level=chapter,page=\arabic{page}]{Abstract}
 
-This reseach used Wiener filter to decode the hand movement of the monkey, with invasive electrode implanted in its brain. 
-With the help of iterative control, the weights of the Wiener filter can be adjusted, and the error approach to minimum.
+This reseach used Wiener filter to decode the hand movement of the monkey, with invasive electrode implanted in its motor cortex. 
+With the help of iterative control, the weights of the Wiener filter can be adjusted, and the error can be reduced, making the prediction approach to the true value. 
+Several linear models have been developed, Kalman filter for example, is suitable for on-line decoding tasks. This article demonstrated how Wiener filter was designed and how to use it to solve brain-computer interface problems.
 
 \begin{multicols}{2}
 
 \section*{Introduction}
 \bookmark[level=chapter,page=\arabic{page}]{Introduction}
 
-Brain machine interface (BMI) 
+A part of brain computer interface (BCI) research is aimed to help those who have motor disability to move or control a computer cursor using imagined or attempted movements\cite{hosman2019bci}. 
+The importance of how the neurons act on the muscles when they perform a moving command is obvious. There are animal experiments conducted on rodent\cite{tampuu2019efficient}, Rhesus macaque monkeys\cite{makin2018}, and even on human\cite{kumar2018eeg}. 
+In order to obtaine neuronal signal containing less information other than motor cortex, invasive microelectrode were used instead than electroencephalography (EEG), which was attached to the surface of subject's head. 
+Broadband signal, or local field potential (LFP), is one source to the hand movement decoder\cite{ahmadi2019decoding}\cite{ahmadi2019end}. 
+On the other hand, some reseachers prefer to high frequency signal called spike train\cite{makin2018}, or merging those two signal all together\cite{stavisky2015high}, which attempt to reach higher decoding performance.
+ 
 
 \section*{Dataset}
 \bookmark[level=chapter,page=\arabic{page}]{Dataset}
@@ -424,14 +430,42 @@ where $ \eta $ is the stepsize. The LMS algorithm, which approximates locally th
 \section*{Results}
 \bookmark[level=chapter,page=\arabic{page}]{Results}
 
+The reconstruction result calculated my linear filter model of x-axis and y-axis handtip position are showed in figure \ref{fig:x_pos} and figure \ref{fig:y_pos}. 
+Red line indicate the actual value of monkey's finger trajectory, and the blue line indicate the linear filter's prediction. 
+The $R^2$ coefficient of x-position and y-position predictions are 0.324 and 0.343, where $R^2 \triangleq 1 - \frac{ \sum_{i} (y_i-f_i)^2 }{  \sum_{i} (y_i-\bar{y})^2 }$.
 
-\section*{Conclustion}
-\bookmark[level=chapter,page=\arabic{page}]{Conclustion}
+\end{multicols}
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=500pt]{./Figures/X_position_prediction.png}
+      \caption{}
+      \label{fig:x_pos}
+  \end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=500pt]{./Figures/Y_position_prediction.png}
+      \caption{}
+      \label{fig:y_pos}
+  \end{center}
+\end{figure}
+
+
+\begin{multicols}{2}
+
+
+% \section*{Conclusion}
+% \bookmark[level=chapter,page=\arabic{page}]{Conclusion}
+
+
+
 
 \bibliography{./reference} \label{sec:references}
 \bookmark[level=chapter,page=\arabic{page}]{References}
 \newpage
-
 
 \end{multicols}
 
